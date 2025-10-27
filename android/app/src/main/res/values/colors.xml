@@ -1,0 +1,9 @@
+<resources>
+    <!-- 🎨 Colores institucionales -->
+    <color name="colorPrimary">#195BA6</color> <!-- Azul institucional -->
+    <color name="colorSecondary">#6C757D</color> <!-- Gris institucional -->
+    <color name="colorAccent">#0A2E5C</color> <!-- Azul oscuro -->
+    <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBlack">#000000</color>
+	<color name="ic_launcher_background">#195BA6</color>
+</resources>
