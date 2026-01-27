@@ -1,91 +1,37 @@
 part of '../pages.dart';
 
 class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
+  const RegistroUsuarioPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<RegistroUsuarioController>(
-      builder: (_) => getContenido(context),
-    );
-  }
-
-  // ===================== 🌐 CONTENIDO PRINCIPAL =====================
-  Widget getContenido(context) {
-    final responsive = ResponsiveUtil();
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: getAppBar('Registro de Usuario'),
-      body: Stack(
+      appBar: _getAppBar('Registro de Usuario'),
+      body: Obx(() => Stack(
         children: [
           SafeArea(
             child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    color: Colors.white,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 2),
-                      child: Column(
-                        children: [
-                          // 🧭 Encabezado
-                          Text(
-                            'Instrucciones',
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF06245B),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Por favor complete los siguientes datos para continuar',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          getContenidonacional(responsive),
-                          const SizedBox(height: 5),
-
-                        ],
-                      ),
-                    ),
-                  ),
+                  _cardInstrucciones(),
+                  const SizedBox(height: 10),
+                  _formularioPrincipal(context),
                 ],
               ),
             ),
           ),
-          Obx(()=>CargandoWidget(mostrar: controller.peticionServerState.value)),
+          CargandoWidget(mostrar: controller.peticionServerState.value),
         ],
-      ),
+      )),
     );
   }
 
-  // ===================== 🧾 FORMULARIO PRINCIPAL =====================
-  Widget getContenidonacional(ResponsiveUtil responsive) {
-    return Form(
-      key: controller.formKeyNacional,
-      child: Column(
-        children: [
-          _TxtCedula(responsive),
-          const SizedBox(height: 15),
-          Obx(() => controller.cedulaLista.isTrue
-              ? getCampos(responsive)
-              : const SizedBox.shrink()),
-        ],
-      ),
-    );
-  }
-
-  // ===================== 🧭 APP BAR =====================
-  AppBar getAppBar(String titleAppBar) {
+  // =====================================================
+  // 🔹 AppBar con gradiente
+  // =====================================================
+  AppBar _getAppBar(String titleAppBar) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -102,7 +48,6 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
       ),
       title: Text(
         titleAppBar,
-        textAlign: TextAlign.center,
         style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w700,
@@ -117,35 +62,68 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
     );
   }
 
-  // ===================== 📋 CAMPOS DEL FORMULARIO =====================
-  Widget getCampos(ResponsiveUtil responsive) {
-    return Column(
-      children: [
-        _TxtPrimerNombre(responsive),
-        const SizedBox(height: 10),
-        controller.segundoNombre
-            ? _TxtPrimerNombre2(responsive)
-            : const SizedBox.shrink(),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  // =====================================================
+  // 🔹 Card de instrucciones
+  // =====================================================
+  Widget _cardInstrucciones() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           children: [
-            _TxtPrimerApellido1(responsive),
-            _TxtPrimerApellido2(responsive),
+            Text(
+              controller.datosCargados.value ? 'Editar Datos' : 'Instrucciones',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF06245B),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              controller.datosCargados.value
+                  ? 'Puede actualizar su número de contacto, correo y foto de perfil.'
+                  : 'Complete los siguientes datos para registrarse en la aplicación.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
           ],
         ),
-        const SizedBox(height: 10),
-        _TxtCelular(responsive),
-        const SizedBox(height: 10),
-        _TxtMail(responsive),
-        const SizedBox(height: 10),
-        wgFoto(responsive),
-        _btnRegistrar(),
-      ],
+      ),
     );
   }
 
-  // ===================== 🧩 CAMPOS DE TEXTO =====================
+  // =====================================================
+  // 🔹 Formulario principal
+  // =====================================================
+  Widget _formularioPrincipal(BuildContext context) {
+    final responsive = ResponsiveUtil();
+
+    return Form(
+      key: controller.formKeyNacional,
+      child: Column(
+        children: [
+          _txtCedula(responsive),
+          const SizedBox(height: 15),
+          _txtNombresApellidos(responsive),
+          const SizedBox(height: 10),
+          _txtCelular(responsive),
+          const SizedBox(height: 10),
+          _txtCorreo(responsive),
+          const SizedBox(height: 10),
+          _wgFoto(responsive),
+          _btnRegistrar(),
+        ],
+      ),
+    );
+  }
+
+  // =====================================================
+  // 🔹 Estilo base de Input
+  // =====================================================
   InputDecoration _inputStyle(String label, String hint, IconData icon) {
     return InputDecoration(
       prefixIcon: Icon(icon, color: const Color(0xFF195ba6)),
@@ -165,116 +143,91 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
     );
   }
 
-  Widget _TxtCedula(ResponsiveUtil res) {
+  // =====================================================
+  // 🔹 Campos de texto
+  // =====================================================
+  Widget _txtCedula(ResponsiveUtil res) {
     return TextFormField(
-      onChanged: (value) {
-        if (value.length == 10) {
-          controller.controllerCedula.text = value;
-          controller.cedulaLista.value = true;
-        } else {
-          controller.cedulaLista.value = false;
-        }
-      },
-      maxLength: 10,
       controller: controller.controllerCedula,
+      readOnly: controller.datosCargados.value, // 🚫 No editable si ya existe
+      maxLength: 10,
       keyboardType: TextInputType.number,
-      decoration: _inputStyle(
-        'Cédula',
-        'Ingrese su número de cédula',
-        Icons.badge,
-      ).copyWith(counterText: ""),
-    );
-  }
-
-  Widget _TxtPrimerNombre(ResponsiveUtil res) {
-    return TextFormField(
-      controller: controller.controllerPrimerNombre,
-      keyboardType: TextInputType.text,
+      decoration: _inputStyle('Cédula', 'Ingrese su número de cédula', Icons.badge)
+          .copyWith(counterText: ""),
       validator: (v) =>
-      v!.isEmpty ? 'Ingrese su Primer Nombre' : null,
-      decoration: _inputStyle(
-        'Primer Nombre',
-        'Ingrese su primer nombre',
-        Icons.person,
-      ),
+      (v == null || v.isEmpty) ? 'Ingrese su número de cédula' : null,
     );
   }
 
-  Widget _TxtPrimerNombre2(ResponsiveUtil res) {
+  Widget _txtNombresApellidos(ResponsiveUtil res) {
+    return Column(
+      children: [
+        TextFormField(
+          controller: controller.controllerPrimerNombre,
+          readOnly: controller.datosCargados.value, // 🚫 bloqueado
+          keyboardType: TextInputType.text,
+          validator: (v) => v!.isEmpty ? 'Ingrese su primer nombre' : null,
+          decoration:
+          _inputStyle('Primer Nombre', 'Ingrese su primer nombre', Icons.person),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(
+              width: res.anchoP(42),
+              child: TextFormField(
+                controller: controller.controllerApellido1,
+                readOnly: controller.datosCargados.value,
+                validator: (v) =>
+                v!.isEmpty ? 'Ingrese su primer apellido' : null,
+                decoration: _inputStyle('Apellido 1', 'Apellido 1', Icons.account_box),
+              ),
+            ),
+            SizedBox(
+              width: res.anchoP(42),
+              child: TextFormField(
+                controller: controller.controllerApellido2,
+                readOnly: controller.datosCargados.value,
+                validator: (v) =>
+                v!.isEmpty ? 'Ingrese su segundo apellido' : null,
+                decoration: _inputStyle(
+                    'Apellido 2', 'Apellido 2', Icons.account_box_outlined),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _txtCelular(ResponsiveUtil res) {
     return TextFormField(
-      controller: controller.controllerPrimerNombre2,
-      keyboardType: TextInputType.text,
-      validator: (v) =>
-      v!.isEmpty ? 'Ingrese su Segundo Nombre' : null,
-      decoration: _inputStyle(
-        'Segundo Nombre',
-        'Ingrese su segundo nombre',
-        Icons.person_outline,
-      ),
-    );
-  }
-
-  Widget _TxtPrimerApellido1(ResponsiveUtil res) {
-    return SizedBox(
-      width: res.anchoP(42),
-      child: TextFormField(
-        controller: controller.controllerApellido1,
-        keyboardType: TextInputType.text,
-        validator: (v) =>
-        v!.isEmpty ? 'Ingrese su Primer Apellido' : null,
-        decoration: _inputStyle('Apellido 1', 'Apellido 1', Icons.account_box),
-      ),
-    );
-  }
-
-  Widget _TxtPrimerApellido2(ResponsiveUtil res) {
-    return SizedBox(
-      width: res.anchoP(42),
-      child: TextFormField(
-        controller: controller.controllerApellido2,
-        keyboardType: TextInputType.text,
-        validator: (v) =>
-        v!.isEmpty ? 'Ingrese su Segundo Apellido' : null,
-        decoration:
-        _inputStyle('Apellido 2', 'Apellido 2', Icons.account_box_outlined),
-      ),
-    );
-  }
-
-  Widget _TxtCelular(ResponsiveUtil res) {
-    return TextFormField(
+      maxLength: 10,
       controller: controller.controllerContacto,
       keyboardType: TextInputType.phone,
-      decoration: _inputStyle(
-        'Número de Contacto',
-        'Ej: 0999999999',
-        Icons.contact_phone,
-      ),
+      decoration: _inputStyle('Número de Contacto', 'Ej: 0999999999', Icons.contact_phone),
+      validator: (v) =>
+      (v == null || v.isEmpty) ? 'Ingrese su número de contacto' : null,
     );
   }
 
-  Widget _TxtMail(ResponsiveUtil res) {
+  Widget _txtCorreo(ResponsiveUtil res) {
     return TextFormField(
       controller: controller.controllerCorreo,
       keyboardType: TextInputType.emailAddress,
-      validator: (value) {
-        controller.emailValidator(value!);
-        return null;
-      },
-      decoration: _inputStyle(
-        'Correo Electrónico',
-        'Ingrese su email',
-        Icons.email_outlined,
-      ),
+      validator: (value) => controller.emailValidator(value ?? ''),
+      decoration: _inputStyle('Correo Electrónico', 'Ingrese su email', Icons.email_outlined),
     );
   }
 
-  // ===================== 🖼️ FOTO PERFIL =====================
-  Widget wgFoto(ResponsiveUtil responsive) {
+  // =====================================================
+  // 🔹 Foto de perfil
+  // =====================================================
+  Widget _wgFoto(ResponsiveUtil responsive) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 5),
         const Text(
           "Foto de Perfil",
           style: TextStyle(
@@ -305,7 +258,8 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
                 const Icon(Icons.add_a_photo, color: Color(0xFF195ba6)),
                 const SizedBox(width: 10),
                 Text(
-                  controller.mGaleryCameraModel.value == null
+                  controller.mGaleryCameraModel.value == null &&
+                      controller.fotoPerfilBytes.value == null
                       ? "Agregar Imagen"
                       : "Cambiar Imagen",
                   style: const TextStyle(color: Color(0xFF06245B)),
@@ -315,27 +269,44 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
           ),
         ),
         const SizedBox(height: 15),
-        Obx(
-              () => controller.mGaleryCameraModel.value == null
-              ? const SizedBox.shrink()
-              : Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.file(
-                controller.mGaleryCameraModel.value!.imageFile,
-                fit: BoxFit.cover,
-                height: responsive.altoP(20),
-                width: responsive.altoP(20),
+        Obx(() {
+          if (controller.mGaleryCameraModel.value != null) {
+            return Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  controller.mGaleryCameraModel.value!.imageFile,
+                  fit: BoxFit.cover,
+                  height: responsive.altoP(20),
+                  width: responsive.altoP(20),
+                ),
               ),
-            ),
-          ),
-        ),
+            );
+          } else if (controller.fotoPerfilBytes.value != null) {
+            return Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.memory(
+                  controller.fotoPerfilBytes.value!,
+                  fit: BoxFit.cover,
+                  height: responsive.altoP(20),
+                  width: responsive.altoP(20),
+                ),
+              ),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        }),
       ],
     );
   }
 
-  // ===================== 🔘 BOTÓN REGISTRO =====================
+  // =====================================================
+  // 🔹 Botón de acción (Registrar o Guardar cambios)
+  // =====================================================
   Widget _btnRegistrar() {
+    final isEdit = controller.datosCargados.value;
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
@@ -349,9 +320,9 @@ class RegistroUsuarioPage extends GetView<RegistroUsuarioController> {
           elevation: 6,
         ),
         icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-        label: const Text(
-          'REGISTRARSE',
-          style: TextStyle(
+        label: Text(
+          isEdit ? 'GUARDAR CAMBIOS' : 'REGISTRARSE',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             letterSpacing: 1.2,

@@ -10,7 +10,6 @@ class GpsController extends GetxController {
   @override
   void onInit() {
     // TODO: implement onInit
-print("onInit gps");
     ubicacionLista.value=true;
     super.onInit();
   }

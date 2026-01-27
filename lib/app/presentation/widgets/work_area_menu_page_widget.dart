@@ -1,7 +1,6 @@
 part of 'custom_widgets.dart';
 
 class WorkAreaMenuPageWidget extends StatefulWidget {
-
   final RxBool peticionServer;
   final String title;
   final String name;
@@ -33,8 +32,7 @@ class WorkAreaMenuPageWidget extends StatefulWidget {
     this.pantallaIrAtras,
     this.name = '',
     this.foto64,
-    required this.numNotificacion
-
+    required this.numNotificacion,
   });
 
   @override
@@ -42,147 +40,108 @@ class WorkAreaMenuPageWidget extends StatefulWidget {
 }
 
 class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
-  GpsController gpsController = Get.find<GpsController>();
-  Rx<Uint8List?> fotoPerfilBytes = Rx<Uint8List?>(null);
+  final GpsController gpsController = Get.find<GpsController>();
+  final MenuPrincipalController menuController = Get.find<MenuPrincipalController>();
+  final LocalStoreImpl _localStoreImpl = Get.find<LocalStoreImpl>();
+
   String ver = '';
-  String userPref = '';
-  String mailPref = '';
-  String acuerdoPref = '';
-  String estadoConex = "";
+  String estadoConex = '';
 
   @override
   void initState() {
-    // TODO: implement initState
-    _verificaDatos();
+    super.initState();
     _loadVersion();
-    _cargarFotoPerfil();
   }
 
   _loadVersion() async {
     String _version = await UtilidadesUtil.getVersionCodeNameApp();
-    setState(() {
-      ver = _version;
-    });
-  }
-
-  final LocalStoreImpl _localStoreImpl =
-  Get.find<LocalStoreImpl>();
-
-  _verificaDatos() async {
-    print("MENU: verificando datos");
-
-    userPref = await _localStoreImpl.getDatosUsuario();
-    acuerdoPref = await _localStoreImpl.getDatosAcuerdo();
-    mailPref = await _localStoreImpl.getDatosMail();
+    setState(() => ver = _version);
   }
 
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtil();
-    Widget wgImgFondo = SingleChildScrollView(child: Container(
-      height: responsive.alto,
-      width: responsive.ancho,
-      child: Image.asset(
-        widget.imgFondo ?? AppImages.imgFondo1,
-        fit: BoxFit.cover,
+    Widget wgImgFondo = SingleChildScrollView(
+      child: SizedBox(
+        height: responsive.alto,
+        width: responsive.ancho,
+        child: Image.asset(
+          widget.imgFondo ?? AppImages.imgFondo1,
+          fit: BoxFit.cover,
+        ),
       ),
-    ),);
+    );
 
     return SafeArea(
-
-        child:  Scaffold(
-        bottomNavigationBar: bannerInferior(responsive),
+      child: Scaffold(
         key: _key,
+        bottomNavigationBar: bannerInferior(responsive),
         drawer: _buildDrawer(context),
         appBar: getAppBar(),
         body: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).requestFocus(FocusNode());
-            },
-            child: SafeArea(child: SingleChildScrollView(child: Stack(
-              children: [
-                wgImgFondo,
-                Column(
-                  children: [
-                    widget.title == '' ? Container() : Text(
-                      widget.title,
-                      textAlign:
-                      TextAlign.center,
-                      style: TextStyle(
-                        fontWeight:
-                        FontWeight.bold,
-                        fontSize: responsive.anchoP(7),
-                        color: const Color(0xFF06245B),
-                      ),
-                    ),
-                    widget.foto64 == null ? Container() : Container(
-                      width: responsive.ancho,
-                      margin: EdgeInsets.only(
-                        top: responsive.altoP(2.0),
-                      ),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                              AppConfig.radioBordecajas),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.blue.withOpacity(0.1),
-                                blurRadius: 20)
-                          ]),
-                      child: Center(
-                        child: Column(
-                          children: <Widget>[
-                            imgPerfilRedonda(size: 30, img: widget.foto64,),
-                            SizedBox(height: responsive.altoP(1.0),),
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  wgImgFondo,
+                  Column(
+                    children: [
+                      if (widget.title.isNotEmpty)
+                        Text(
+                          widget.title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: responsive.anchoP(7),
+                            color: const Color(0xFF06245B),
+                          ),
+                        ),
+                      if (widget.foto64 != null)
+                        Column(
+                          children: [
+                            SizedBox(height: responsive.altoP(2.0)),
+                            imgPerfilRedonda(size: 30, img: widget.foto64),
+                            SizedBox(height: responsive.altoP(1.0)),
                             Text(
                               widget.name,
-                              textAlign:
-                              TextAlign.center,
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontWeight:
-                                  FontWeight.bold,
-                                  fontSize: responsive.anchoP(4.5),
-                                  color: Colors.black
-                                      .withOpacity(
-                                      0.8)),
-                            )
+                                fontWeight: FontWeight.bold,
+                                fontSize: responsive.anchoP(4.5),
+                                color: Colors.black.withOpacity(0.8),
+                              ),
+                            ),
+                            SizedBox(height: responsive.altoP(2)),
                           ],
-
                         ),
-
-                      ),
-
-                    ),
-                    widget.foto64 == null ? Container() : SizedBox(
-                      height: responsive.altoP(2),),
-                    widget.contenido,
-
-                  ],
-                ),
-                Obx(() =>
-                    CargandoWidget(
-                      mostrar: widget.peticionServer.value,
-                    ))
-              ],
-            ),),)
-        )));
+                      widget.contenido,
+                    ],
+                  ),
+                  Obx(() => CargandoWidget(mostrar: widget.peticionServer.value)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
+  // =======================================================
+  // 🔹 BANNER INFERIOR SOCIAL
+  // =======================================================
   Widget bannerInferior(ResponsiveUtil responsive) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [   Colors.grey,Color(0xFF06245B),],
+          colors: [Colors.grey, Color(0xFF06245B)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        color: Color(0xFF0A2A66), // mismo tono que AppBar o complementario
         boxShadow: [
-          BoxShadow(
-            color: Colors.black45,
-            blurRadius: 8,
-            offset: Offset(0, -2),
-          ),
+          BoxShadow(color: Colors.black45, blurRadius: 8, offset: Offset(0, -2)),
         ],
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(22),
@@ -192,22 +151,10 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          socialIconButton(
-            iconPath: AppImages.imgFacebook,
-            onTap: launchURLFace,
-          ),
-          socialIconButton(
-            iconPath: AppImages.imgTwitter,
-            onTap: launchURLTwitter,
-          ),
-          socialIconButton(
-            iconPath: AppImages.imgInstagran,
-            onTap: launchURLInsta,
-          ),
-          socialIconButton(
-            iconPath: AppImages.imgYoutube,
-            onTap: launchURLYou,
-          ),
+          socialIconButton(iconPath: AppImages.imgFacebook, onTap: launchURLFace),
+          socialIconButton(iconPath: AppImages.imgTwitter, onTap: launchURLTwitter),
+          socialIconButton(iconPath: AppImages.imgInstagran, onTap: launchURLInsta),
+          socialIconButton(iconPath: AppImages.imgYoutube, onTap: launchURLYou),
         ],
       ),
     );
@@ -221,31 +168,20 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.white30, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 3),
-            ),
-          ],
         ),
-        child: Image.asset(
-          iconPath,
-          width: 24,
-          height: 24,
-
-        ),
+        child: Image.asset(iconPath, width: 24, height: 24),
       ),
     );
   }
 
-
+  // =======================================================
+  // 🔹 APPBAR
+  // =======================================================
   AppBar getAppBar() {
     return AppBar(
       backgroundColor: Colors.transparent,
@@ -254,42 +190,29 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       flexibleSpace: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [  Color(0xFF06245B), Colors.grey.shade600],
+            colors: [const Color(0xFF06245B), Colors.grey.shade600],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(20),
-          ),
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
       title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(
-            AppImages.imgEdificio,
-            height: 32,
-          ),
+          Image.asset(AppImages.imgEdificio, height: 32),
           const SizedBox(width: 8),
           const Text(
             'MI UPC',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Colors.white),
           ),
         ],
       ),
       leading: Builder(
-        builder: (context) {
-          return IconButton(
-            icon: const Icon(Icons.menu, size: 28),
-            color: Colors.white,
-            onPressed: () => Scaffold.of(context).openDrawer(),
-            tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          );
-        },
+        builder: (context) => IconButton(
+          icon: const Icon(Icons.menu, size: 28, color: Colors.white),
+          onPressed: () => Scaffold.of(context).openDrawer(),
+        ),
       ),
       actions: [
         if (widget.mostrarNotificacion)
@@ -299,12 +222,9 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
               clipBehavior: Clip.none,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.notifications_none, size: 28),
+                  icon: const Icon(Icons.notifications_none, size: 40),
                   color: Colors.white,
-                  onPressed: () {
-                    // 👇 Navega al detalle de alertas
-                    Get.toNamed(AppRoutes.DETALLEALERTAS);
-                  },
+                  onPressed: () => Get.toNamed(AppRoutes.DETALLEALERTAS),
                 ),
                 if (total > 0)
                   Positioned(
@@ -332,30 +252,14 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
               ],
             );
           }),
-
-        if (widget.btnAtras && widget.pantallaIrAtras != null)
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios, size: 24),
-            color: Colors.white,
-            onPressed: widget.pantallaIrAtras,
-          ),
       ],
-
-
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(20),
-        ),
-      ),
     );
   }
 
-
-  // Drawer
+  // =======================================================
+  // 🔹 DRAWER LATERAL
+  // =======================================================
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
-  final Color primary = Colors.white;
-  final Color active = Colors.grey.shade800;
-  final Color divider = Colors.grey.shade600;
 
   Widget _buildDrawer(BuildContext context) {
     final responsive = ResponsiveUtil();
@@ -369,25 +273,15 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  Colors.white.withOpacity(0.15),
-                  Colors.white.withOpacity(0.05),
-                ],
+                colors: [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.05)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 8,
-                  offset: Offset(0, 4),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
             ),
             child: SafeArea(
               child: Column(
                 children: [
-                  // CERRAR SESIÓN
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
@@ -396,35 +290,41 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
                     ),
                   ),
 
-                  // AVATAR & DATOS
+                  // 👇 FOTO Y DATOS REACTIVOS DESDE MenuPrincipalController
                   Obx(() {
-                    final bytes = fotoPerfilBytes.value;
+                    final bytes = menuController.fotoPerfilBytes.value;
+                    final nombre = menuController.userPref.value;
+
                     return Column(
                       children: [
                         CircleAvatar(
                           radius: responsive.altoP(10),
                           backgroundColor: Colors.grey[200],
-                          backgroundImage:
-                          bytes != null ? MemoryImage(bytes) : null,
+                          backgroundImage: bytes != null ? MemoryImage(bytes) : null,
                           child: bytes == null
                               ? Icon(Icons.person, size: responsive.altoP(8), color: Colors.grey)
                               : null,
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          userPref.isNotEmpty ? userPref : "Usuario",
+                          nombre.isNotEmpty ? nombre : "Usuario",
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                             fontSize: responsive.diagonalP(1.6),
                           ),
                         ),
-                        Text(
-                          mailPref.isNotEmpty ? mailPref : "email@dominio.com",
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: responsive.diagonalP(1.2),
-                          ),
+                        FutureBuilder<String>(
+                          future: _localStoreImpl.getDatosMail(),
+                          builder: (context, snapshot) {
+                            return Text(
+                              snapshot.data ?? "email@dominio.com",
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: responsive.diagonalP(1.2),
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 20),
                       ],
@@ -434,18 +334,15 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
                   // OPCIONES DE NAVEGACIÓN
                   Expanded(
                     child: ListView(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
                         _drawerItem(Icons.home, "Inicio", () {
                           Get.offAllNamed(AppRoutes.SPLASH);
                         }),
                         _drawerItem(Icons.share, "Compartir App", () {
-                          Share.share("https://play.google.com/store/...");
+                          Share.share("https://play.google.com/store/apps/details?id=com.miupc");
                         }),
-                        _drawerItem(Icons.person,
-                            userPref.isEmpty ? "Registrar Usuario" : "Cambiar Datos",
-                            verificaTConexion
-                        ),
+                        _drawerItem(Icons.person, "Registrar / Editar Datos", verificaTConexion),
                       ],
                     ),
                   ),
@@ -463,10 +360,8 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
                       ],
                     ),
                   ),
-                  Text(
-                    'v$ver ${AppConfig.ambiente}',
-                    style: TextStyle(color: Colors.white54, fontSize: 12),
-                  ),
+                  Text('v$ver ${AppConfig.ambiente}',
+                      style: const TextStyle(color: Colors.white54, fontSize: 12)),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -476,6 +371,61 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       ),
     );
   }
+
+  Widget _drawerItem(IconData icon, String label, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.white),
+      title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
+      onTap: onTap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      hoverColor: Colors.white24,
+    );
+  }
+
+  // =======================================================
+  // 🔹 GPS / CONEXIÓN / URLS
+  // =======================================================
+  verificarGps() async {
+    bool verificarGps = await gpsController.verificarGPS();
+    if (verificarGps) {
+      gpsController.iniciarSeguimiento();
+      if (!gpsController.ubicacionLista.value) {
+        DialogosAwesome.getInformation(
+            descripcion: "Las coordenadas aún no están listas. Intente nuevamente.");
+      } else {
+        Get.toNamed(AppRoutes.REGISTROUSUARIO);
+      }
+    }
+  }
+
+  verificaTConexion() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        estadoConex = 'S';
+        verificarGps();
+      }
+    } on SocketException {
+      DialogosAwesome.getError(descripcion: 'No tiene conexión a Internet');
+    }
+  }
+
+  static Future<void> launchURLFace() async =>
+      launchUrl(Uri.parse('https://www.facebook.com/policia.ecuador'),
+          mode: LaunchMode.inAppBrowserView);
+
+  static Future<void> launchURLTwitter() async =>
+      launchUrl(Uri.parse('https://twitter.com/PoliciaEcuador'),
+          mode: LaunchMode.inAppBrowserView);
+
+  static Future<void> launchURLInsta() async =>
+      launchUrl(Uri.parse('https://www.instagram.com/policiaecuadoroficial'),
+          mode: LaunchMode.inAppBrowserView);
+
+  static Future<void> launchURLYou() async =>
+      launchUrl(Uri.parse('https://www.youtube.com/user/policiaecuador2'),
+          mode: LaunchMode.inAppBrowserView);
+
   Widget socialIconButtonD(String assetPath, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -491,85 +441,4 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       ),
     );
   }
-  Widget _drawerItem(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(
-        label,
-        style: const TextStyle(color: Colors.white, fontSize: 16),
-      ),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(vertical: 4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      hoverColor: Colors.white24,
-    );
-  }
-  verificarGps() async {
-    //se verifica si el GPS del dispositivo seta activo y tiene permisos
-    bool verificarGps = await gpsController.verificarGPS();
-    if (verificarGps) {
-      gpsController.iniciarSeguimiento();
-      // iniciarSeguimiento1();
-      if (!gpsController.ubicacionLista.value) {
-        DialogosAwesome.getInformation(
-            descripcion: "Las coordenas aun no estan lista vuelva a intentar");
-      }else{
-      /*  if (acuerdoPref=="Aceptado"){
-
-          Get.toNamed(AppRoutes.REGISTROUSUARIO);
-        }else{
-          Get.toNamed(AppRoutes.ACUERDO);
-        }*/
-        Get.toNamed(AppRoutes.REGISTROUSUARIO);
-      }
-    }
-  }
-
-  verificaTConexion() async {
-    try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        estadoConex = 'S';
-        verificarGps();
-
-      }
-    } on SocketException catch (_) {
-    DialogosAwesome.getError(descripcion: 'No tiene conexión a Internet');
-    }
-  }
-  static Future<void> launchURLFace() async {
-    final url = Uri.parse('https://www.facebook.com/policia.ecuador');
-    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-  static Future<void>  launchURLTwitter() async {
-    final url = Uri.parse('https://twitter.com/PoliciaEcuador');
-    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-
-  static Future<void>  launchURLInsta() async {
-    final url = Uri.parse('https://www.instagram.com/policiaecuadoroficial');
-    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-
-  static Future<void>  launchURLYou() async {
-    final url = Uri.parse('https://www.youtube.com/user/policiaecuador2');
-    if (!await launchUrl(url, mode: LaunchMode.inAppBrowserView)) {
-      throw Exception('Could not launch $url');
-    }
-  }
-
-  Future<void> _cargarFotoPerfil() async {
-    final bytes = await _localStoreImpl.getFoto();
-    if (bytes != null) {
-      fotoPerfilBytes.value = bytes;
-    }
-  }
 }
-
-

@@ -122,4 +122,33 @@ class LocalStoreImpl extends LocalStorageRepository {
   Future<void> setFoto(Uint8List imageBytes) async {
     return _localStoreProviderImpl.setFoto(imageBytes);
   }
+  // ============================================================
+  // 🔹 GUARDAR Y OBTENER DATOS COMPLETOS DEL USUARIO
+  // ============================================================
+  @override
+  Future<void> setDatosUsuarioCompleto({
+    required String nombre,
+    required String apellido1,
+    required String apellido2,
+    required String cedula,
+    required String telefono,
+    required String correo,
+    Uint8List? foto,
+  }) {
+    return _localStoreProviderImpl.setDatosUsuarioCompleto(
+      nombre: nombre,
+      apellido1: apellido1,
+      apellido2: apellido2,
+      cedula: cedula,
+      telefono: telefono,
+      correo: correo,
+      foto: foto,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>?> getDatosUsuarioCompleto() {
+    return _localStoreProviderImpl.getDatosUsuarioCompleto();
+  }
+
 }

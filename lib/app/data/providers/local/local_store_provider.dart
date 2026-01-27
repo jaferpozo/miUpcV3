@@ -258,4 +258,49 @@ class LocalStoreProviderImpl extends LocalStorageRepository {
     Map<String, dynamic> datos = json.decode(_json);
     return List<Servicio>.from(datos["datos"].map((x) => Servicio.fromJson(x)));
   }
+
+  // ============================================================
+  // 🔹 GUARDAR DATOS DEL USUARIO
+  // ============================================================
+  @override
+  Future<void> setDatosUsuarioCompleto({
+    required String nombre,
+    required String apellido1,
+    required String apellido2,
+    required String cedula,
+    required String telefono,
+    required String correo,
+    Uint8List? foto,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('USER_NOMBRE', nombre);
+    await prefs.setString('USER_APELLIDO1', apellido1);
+    await prefs.setString('USER_APELLIDO2', apellido2);
+    await prefs.setString('USER_CEDULA', cedula);
+    await prefs.setString('USER_TELEFONO', telefono);
+    await prefs.setString('USER_CORREO', correo);
+    if (foto != null) {
+      await prefs.setString('USER_FOTO', base64Encode(foto));
+    }
+  }
+
+  // ============================================================
+  // 🔹 CARGAR DATOS DEL USUARIO
+  // ============================================================
+  @override
+  Future<Map<String, dynamic>?> getDatosUsuarioCompleto() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('USER_CEDULA')) return null;
+    return {
+      'nombre': prefs.getString('USER_NOMBRE') ?? '',
+      'apellido1': prefs.getString('USER_APELLIDO1') ?? '',
+      'apellido2': prefs.getString('USER_APELLIDO2') ?? '',
+      'cedula': prefs.getString('USER_CEDULA') ?? '',
+      'telefono': prefs.getString('USER_TELEFONO') ?? '',
+      'correo': prefs.getString('USER_CORREO') ?? '',
+      'foto': prefs.getString('USER_FOTO'),
+    };
+  }
+
+
 }

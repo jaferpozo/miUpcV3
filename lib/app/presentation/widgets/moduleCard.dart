@@ -65,7 +65,7 @@ class _ModuleCardState extends State<ModuleCard> {
             filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 12),
-              child: Column(
+              child: SingleChildScrollView(child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -102,7 +102,7 @@ class _ModuleCardState extends State<ModuleCard> {
                     ),
                   ),
 
-                 const SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   // 🔸 Texto del módulo
                   Padding(
@@ -141,7 +141,7 @@ class _ModuleCardState extends State<ModuleCard> {
                     ),
                   ),
                 ],
-              ),
+              ),),
             ),
           ),
         ),

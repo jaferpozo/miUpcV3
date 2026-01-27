@@ -32,7 +32,6 @@ class ServiciosPage extends GetView<ServiciosController> {
 
                 // 🔹 Grid de servicios
                 SizedBox(
-                  width: responsive.anchoP(90),
                   child: Obx(() => getGridServicios()),
                 ),
               ],
@@ -59,7 +58,7 @@ class ServiciosPage extends GetView<ServiciosController> {
           itemCount: controller.listaServicios?.length ?? 0,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            crossAxisSpacing: responsive.anchoP(3),
+            crossAxisSpacing: responsive.anchoP(8),
             mainAxisSpacing: responsive.altoP(2),
             childAspectRatio: 0.9,
           ),
@@ -169,7 +168,7 @@ class ServiciosPage extends GetView<ServiciosController> {
       if (controller.idGenPersona==0) {
         DialogosAwesome.getError(
           descripcion:
-          "Para usar esta opción debe registrarse como usuario luego intente nuevamente.",
+          "Para usar esta opción debe registrarse como usuario luego intente nuevamente.",btnOkOnPress: (){Get.back();}
         );
         controller.peticionServerState(false);
         return;

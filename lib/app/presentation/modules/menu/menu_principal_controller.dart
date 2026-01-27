@@ -64,15 +64,16 @@ class MenuPrincipalController extends GetxController {
     print("🌎 Locale actual: ${Get.deviceLocale}");
   }
 
-  Future<void> _verificaDatos() async {
-    userPref.value = await _localStoreImpl.getDatosUsuario();
-    acuerdo = await _localStoreImpl.getDatosAcuerdo();
-  }
-
   Future<void> _cargarFotoPerfil() async {
     final bytes = await _localStoreImpl.getFoto();
-    if (bytes != null) fotoPerfilBytes.value = bytes;
+    if (bytes != null) {
+      print("🖼️ Foto de perfil cargada correctamente (${bytes.length} bytes)");
+      fotoPerfilBytes.value = bytes;
+    } else {
+      print("⚠️ No se encontró foto de perfil en almacenamiento local.");
+    }
   }
+
 
   // =============================================================
   // 🌐 CONTROL DE CONEXIÓN
@@ -276,4 +277,14 @@ class MenuPrincipalController extends GetxController {
 
     });
   }
+  Future<void> _verificaDatos() async {
+    userPref.value = await _localStoreImpl.getDatosUsuario();
+    acuerdo = await _localStoreImpl.getDatosAcuerdo();
+
+    // 🔹 Carga la foto del usuario guardada
+    final bytes = await _localStoreImpl.getFoto();
+    if (bytes != null)
+      fotoPerfilBytes.value = bytes;
+  }
+
 }
