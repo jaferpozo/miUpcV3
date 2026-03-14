@@ -122,7 +122,6 @@ String nombreModulo='';
 
     try {
       peticionServerState(true);
-
       // 🔹 Datos base para guardar imagen
       String path = dotenv.env['PATH_IMG_ALERTAS'] ?? '';
       String nameFile = "eventos";
@@ -178,6 +177,7 @@ String nombreModulo='';
           descripcion: 'Evento registrado correctamente',
           btnOkOnPress: () {
             peticionServerState(false);
+            Get.back();
             Get.back();
           },
         );

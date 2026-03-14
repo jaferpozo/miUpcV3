@@ -13,10 +13,12 @@ class MenuPrincipalController extends GetxController {
   final ModulosRepository _apiModulosRepository = Get.find<ModulosRepository>();
   final AlertaViolenciaRepository _apiAlertaViolenciaRepository = Get.find<AlertaViolenciaRepository>();
   final LocalStoreImpl _localStoreImpl = Get.find<LocalStoreImpl>();
-
+late  String botonAlerta='';
   // ======================= 🗂️ DATOS ============================
   final RxList<Modulo> listaModulo = <Modulo>[].obs;
   final RxList<Permiso> listaPermiso = <Permiso>[].obs;
+  final RxList<Dato> listaPermisoBoton = <Dato>[].obs;
+
   final RxList<ListaAlerta> listaAlertasUsuario = <ListaAlerta>[].obs;
 
   Rx<Modulo> datosModulos = Modulo(
@@ -32,7 +34,11 @@ class MenuPrincipalController extends GetxController {
   Rx<GaleryCameraModel?> mGaleryCameraModel = Rx<GaleryCameraModel?>(null);
 
   String acuerdo = "";
+// ✅ Estado del permiso para mostrar el botón
+  final RxBool tienePermisoAlerta = false.obs;
 
+// (opcional) para evitar parpadeos mientras consulta
+  final RxBool cargandoPermisoAlerta = false.obs;
   // =============================================================
   // 🔹 CICLO DE VIDA
   // =============================================================
@@ -40,6 +46,7 @@ class MenuPrincipalController extends GetxController {
   void onInit() {
     super.onInit();
     verificaTConexion();
+    consultaPermisosBotonAlerta();
     _verificaDatos();
     _cargarFotoPerfil();
     connectionStatusController();
@@ -126,20 +133,63 @@ class MenuPrincipalController extends GetxController {
       peticionServerState(true);
       listaModulo.clear();
 
-      listaModulo.value = await _apiModulosRepository.buscaListaModulos();
+      // 🔹 Primero consulta permisos
+      await consultaPermisosBotonAlerta();
 
-      if (listaModulo.isEmpty) {
+      final lista = await _apiModulosRepository.buscaListaModulos();
+
+      if (lista.isEmpty) {
         await _cargarModulosOffline();
         return;
       }
 
-      await _localStoreImpl.setDatosListaModulos(listModulos: listaModulo);
+      // 🔹 Filtrar módulos según permiso
+      final listaFiltrada = lista.where((mod) {
+        // Ejemplo: si el módulo se llama ALERTA o tiene código específico
+        if (mod.tituloModulo == "ALERTAS TEMPRANAS") {
+          return tienePermisoAlerta.value;
+        }
+        return true;
+      }).toList();
+
+      listaModulo.value = listaFiltrada;
+
+      await _localStoreImpl.setDatosListaModulos(
+        listModulos: listaFiltrada,
+      );
+
     } on ServerException {
       await _cargarModulosOffline();
     } finally {
       peticionServerState(false);
     }
   }
+  // =============================================================
+  // 🧍‍♂️ PERMISOS Y ALERTAS
+  // =============================================================
+  Future<void> consultaPermisosBotonAlerta() async {
+    try {
+      cargandoPermisoAlerta.value = true;
+      final idGenPersona = await _localStoreImpl.getIdUser();
+      if (idGenPersona == 0) {
+        tienePermisoAlerta.value = false;
+        return;
+      }
+      final  resp = await _apiModulosRepository.buscaPermisoBoton(
+        idGenPersona: idGenPersona,
+        nomApp: "PCQR",
+      );
+      tienePermisoAlerta.value = (resp.msj.toLowerCase() == "existe");
+    } on ServerException {
+      tienePermisoAlerta.value = false;
+    } catch (_) {
+      tienePermisoAlerta.value = false;
+    } finally {
+      cargandoPermisoAlerta.value = false;
+    }
+  }
+
+
 
   // =============================================================
   // 🧍‍♂️ PERMISOS Y ALERTAS

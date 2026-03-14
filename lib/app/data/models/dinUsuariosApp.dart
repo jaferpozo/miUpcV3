@@ -57,8 +57,8 @@ class Permiso {
   });
 
   factory Permiso.fromJson(Map<String, dynamic> json) => Permiso(
-    idDinUsuariosApp: json["idDinUsuariosApp"],
-    idGenGeoSenplades: json["idGenGeoSenplades"],
+    idDinUsuariosApp: ParseModel.parseToInt(json["idDinUsuariosApp"]),
+    idGenGeoSenplades: ParseModel.parseToInt(json["idGenGeoSenplades"]),
     apenom: json["apenom"],
     servicio: json["servicio"],
   );

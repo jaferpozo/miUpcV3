@@ -13,3 +13,4 @@ part 'dinCatalogosAppModel.dart';
 part 'dinListaAlertasModel.dart';
 part 'dinIniciaServicioModel.dart';
 part 'dinActualizaAlertaModel.dart';
+part 'permisoBotonModel.dart';

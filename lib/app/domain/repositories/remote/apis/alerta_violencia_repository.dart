@@ -2,7 +2,6 @@ part of '../../domain_repositories.dart';
 
 abstract class AlertaViolenciaRepository {
   Future<List<Permiso>>consultaPermisosPolicia(int idGenPersona) ;
-
   Future <DinAlertaApp> registrarEvento({
   required int idGenPersona,
   required int idDinCatalogosApp,

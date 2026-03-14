@@ -185,6 +185,16 @@ class MenuPrincipalPage extends GetView<MenuPrincipalController> {
     );
   }
 
+  Modulo? _getModuloByTitulo(String titulo) {
+    final t = titulo.trim().toLowerCase();
+    try {
+      return controller.listaModulo.firstWhere(
+            (m) => m.tituloModulo.trim().toLowerCase() == t,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 
   muestraPantalla(index, BuildContext ctx) async {
     if (index == 0) {
@@ -196,12 +206,23 @@ class MenuPrincipalPage extends GetView<MenuPrincipalController> {
     }
     if (index == 1) {
       if (controller.status == ConnectionStatus.online) {
-        Map<String, String> data = {
-          "id": "3",
-          "imagen": controller.listaModulo[1].imgBase64,
-          "nombreModulo": 'Violencia de Género',
-        };
-        Get.toNamed(AppRoutes.SERVICIOS, parameters: data);
+
+        if (controller.tienePermisoAlerta.value){
+          Map<String, String> data = {
+            "id": "4",
+            "imagen": controller.listaModulo[1].imgBase64,
+            "nombreModulo": 'Alertas Tempranas',
+          };
+          Get.toNamed(AppRoutes.REGISTRAR_EVENTO, parameters: data);
+        }else{
+          Map<String, String> data = {
+            "id": "3",
+            "imagen": controller.listaModulo[1].imgBase64,
+            "nombreModulo": 'Violencia de Género',
+          };
+          Get.toNamed(AppRoutes.SERVICIOS, parameters: data);
+        }
+
       } else {
         DialogosAwesome.getError(
           descripcion: "No tiene Conexión a Internet para registrar un evento",
@@ -209,14 +230,45 @@ class MenuPrincipalPage extends GetView<MenuPrincipalController> {
       }
     }
     if (index == 2) {
+      if (controller.status == ConnectionStatus.online) {
+        if (controller.tienePermisoAlerta.value){
+        Map<String, String> data = {
+          "id": "3",
+          "imagen": controller.listaModulo[1].imgBase64,
+          "nombreModulo": 'Violencia de Género',
+        };
+        Get.toNamed(AppRoutes.SERVICIOS, parameters: data);}
+        else{
+          Map<String, String> data = {
+            "id": "1",
+            "imagen": controller.listaModulo[2].imgBase64,
+            "nombreModulo": 'Servicio Policía Comunitaria',
+          };
+          Get.toNamed(AppRoutes.SERVICIOS, parameters: data);
+        }
+      } else {
+        DialogosAwesome.getError(
+          descripcion: "No tiene Conexión a Internet para registrar un evento",
+        );
+      }
+    }
+    if (index == 3) {
+      if (controller.tienePermisoAlerta.value){
       Map<String, String> data = {
         "id": "1",
         "imagen": controller.listaModulo[2].imgBase64,
         "nombreModulo": 'Servicio Policía Comunitaria',
       };
-      Get.toNamed(AppRoutes.SERVICIOS, parameters: data);
+      Get.toNamed(AppRoutes.SERVICIOS, parameters: data);}else{
+        Map<String, String> data = {
+          "id": "2",
+          "imagen": controller.listaModulo[3].imgBase64,
+          "nombreModulo": 'Medidas de Autoprotección',
+        };
+        Get.toNamed(AppRoutes.SERVICIOS, parameters: data);
+      }
     }
-    if (index == 3) {
+    if (index == 4) {
       Map<String, String> data = {
         "id": "2",
         "imagen": controller.listaModulo[3].imgBase64,

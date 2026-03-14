@@ -13,6 +13,8 @@ enum Ambiente { desarrollo, prueba, produccion }
 
 class AppConfig {
 
+  static  Ambiente AmbienteUrl=Ambiente.desarrollo;
+
   static  String formatoFecha =  'yyyy-MM-dd';
   static  String formatoHora =  'HH:mm';
   static  String formatoSoloHora =  'HH';
@@ -31,7 +33,7 @@ static int secondsTimeout=8;
   static String userTestGoogleSiipne='pcjf0401477963';
   static String passTestGoogleSiipne='David2010..';
 
-  static  Ambiente AmbienteUrl=Ambiente.desarrollo;
+
   static const String linkAppAndroid =
       "https://play.google.com/store/apps/details?id=siipne3.policia.ecuador.dntic.registro_generales";
   static const String linkAppIos =

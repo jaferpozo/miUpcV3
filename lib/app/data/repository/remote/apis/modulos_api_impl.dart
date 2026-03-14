@@ -12,5 +12,14 @@ class ModulosApiImpl extends ModulosRepository {
     }
   }
 
+  @override
+  Future<DgoUsuariosAlertaApp> buscaPermisoBoton({required int idGenPersona, required String nomApp}) async {
+    try {
+      return  await _modulosApiProviderImpl.buscaPermisoBoton(idGenPersona: idGenPersona, nomApp: nomApp);
+    }  catch (e){
+      throw ExceptionHelper.captureError(e);
+    }
+  }
+
 
 }

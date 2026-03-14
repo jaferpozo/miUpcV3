@@ -19,6 +19,7 @@ import '../../core/utils/responsiveUtil.dart';
 import '../../core/utils/utilidadesUtil.dart';
 import '../../core/values/app_images.dart';
 import '../../data/models/models.dart';
+import '../../data/models/modulos.dart';
 import '../routes/app_routes.dart';
 import '../widgets/custom_widgets.dart';
 import 'controllers.dart';
