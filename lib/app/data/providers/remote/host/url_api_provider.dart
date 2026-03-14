@@ -264,4 +264,53 @@ class UrlApiProvider {
       print(e.toString());
     }
   }
+  static Future<String> getFullUrl({
+    required String url,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      final response = await http
+          .get(
+        Uri.parse(url),
+        headers: headers ?? await getheaders(),
+      )
+          .timeout(Duration(seconds: _secondsTimeout));
+
+      print("getFullUrl-url: $url");
+      print("getFullUrl-statusCode: ${response.statusCode}");
+      print("getFullUrl-responsebody: ${response.body}");
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        throw ServerException.StatusCode(statusCode: response.statusCode);
+      }
+    } catch (e) {
+      throw ExceptionHelper.captureError(e);
+    }
+  }
+  static Future<String> postFullUrl({
+    required String url,
+    Object? body,
+    Map<String, String>? headers,
+  }) async {
+    try {
+      final response = await http
+          .post(
+        Uri.parse(url),
+        headers: headers ?? await getheaders(),
+        body: jsonEncode(body),
+      )
+          .timeout(Duration(seconds: _secondsTimeout));
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return response.body;
+      } else {
+        throw ServerException.StatusCode(statusCode: response.statusCode);
+      }
+    } catch (e) {
+      throw ExceptionHelper.captureError(e);
+    }
+  }
+
 }

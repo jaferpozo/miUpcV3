@@ -24,6 +24,7 @@ import '../../core/utils/responsiveUtil.dart';
 import '../../core/utils/utilidadesUtil.dart';
 import '../../core/values/app_colors.dart';
 import '../../core/values/app_images.dart';
+import '../../data/models/models.dart';
 import '../../data/repository/data_repositories.dart';
 import '../gps/gps_impl_helper.dart';
 import '../modules/controllers.dart';
@@ -62,4 +63,6 @@ part 'imgBanner.dart';
 part 'moduleCard.dart';
 part 'combos/combo_busqueda.dart';
 part 'connection_status_banner.dart';
+part 'SeleccionMapaEventoWidget.dart';
+part 'adjunto_evento_widget.dart';
 

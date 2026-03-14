@@ -19,6 +19,24 @@ class Host {
     }
     return url;
   }
+  static gethostApis({bool onlyUrl = false})  {
+    String url = '';
+    switch (AppConfig.AmbienteUrl) {
+      case Ambiente.desarrollo:
+        url="https://backendtest.policia.gob.ec/";
+        url=_setSegmentoAppApis(url,onlyUrl);
+        break;
+      case Ambiente.prueba:
+        url="https://apisTest.policia.gob.ec/";//Pruebas
+        url=_setSegmentoAppApis(url,onlyUrl);
+        break;
+      case Ambiente.produccion:
+        url="https://apis.policia.gob.ec/";
+        url=_setSegmentoAppApis(url,onlyUrl);
+        break;
+    }
+    return url;
+  }
 
   static getAmbiente() {
     String ambiente = '';
@@ -41,4 +59,7 @@ class Host {
     return url;
   }
 
+  static  _setSegmentoAppApis(String url, onlyUrl) {
+    return url;
+  }
 }

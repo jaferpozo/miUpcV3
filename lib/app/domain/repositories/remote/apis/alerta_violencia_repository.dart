@@ -13,6 +13,7 @@ abstract class AlertaViolenciaRepository {
   required String ip });
 
   Future<List<Catalogo>>consultaCatalogos(int din_idDinCatalogosApp);
+
   Future<List<ListaAlerta>>consultaListaAlertasUsuario(int idGenPersona);
 
   Future <DinUsuarioTurnosApp> inicioServicio({

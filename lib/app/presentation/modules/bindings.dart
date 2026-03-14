@@ -15,3 +15,4 @@ part 'registroUsuario/registro_usuario_binding.dart';
 part 'eventos/eventos_binding.dart';
 part 'vehiculos/vehiculos_binding.dart';
 part 'detalleAlertas/detalle_alertas_binding.dart';
+part 'alertasDelitos/alertas_delitos_binding.dart';

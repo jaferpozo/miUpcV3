@@ -35,3 +35,4 @@ part 'eventos/eventos_page.dart';
 
 part 'vehiculos/vehiculos_page.dart';
 part 'detalleAlertas/detalle_alertas_page.dart';
+part 'alertasDelitos/alertas_delitos_page.dart';

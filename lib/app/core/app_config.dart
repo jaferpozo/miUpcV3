@@ -26,6 +26,7 @@ static int secondsTimeout=8;
   static const double radioBotones = 15.0;
   static const int intentosFallidos = 3;
   static String ambiente = Host.getAmbiente();
+  static String ambienteApis=Host.getAmbiente();
   static bool isProduccion=ambiente=='Prod'?true:false;
 
   static String userTestGoogle='test_google';

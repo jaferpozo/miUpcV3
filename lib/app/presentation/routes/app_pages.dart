@@ -67,5 +67,9 @@ class AppPages {
         name: AppRoutes.DETALLEALERTAS,
         page: () => DetalleAlertasPage(),
         binding: DetalleAlertasBinding()),
+    getPageConfig(
+        name: AppRoutes.ALERTASDELITOS,
+        page: () => AlertasDelitosPage(),
+        binding: AlertasDelitosBinding()),
   ];
 }

@@ -213,7 +213,7 @@ class MenuPrincipalPage extends GetView<MenuPrincipalController> {
             "imagen": controller.listaModulo[1].imgBase64,
             "nombreModulo": 'Alertas Tempranas',
           };
-          Get.toNamed(AppRoutes.REGISTRAR_EVENTO, parameters: data);
+          Get.toNamed(AppRoutes.ALERTASDELITOS, parameters: data);
         }else{
           Map<String, String> data = {
             "id": "3",

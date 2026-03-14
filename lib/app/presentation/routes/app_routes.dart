@@ -11,4 +11,5 @@ class AppRoutes{
   static const REGISTRAR_EVENTO="/registroEvento";
   static const CONSULTAVEHICULO="/consultaVehiculo";
   static const DETALLEALERTAS="/detalleAlertas";
+  static const ALERTASDELITOS="/AlertasDelitos";
 }

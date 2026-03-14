@@ -128,7 +128,7 @@ class EventosPage extends GetView<EventosController> {
             Icon(Icons.image_outlined, color: Color(0xFF06245B)),
             SizedBox(width: 8),
             Text(
-              "Agregar Imagen (opcional)",
+              "Agregar Imagen hhhh(opcional)",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 15,

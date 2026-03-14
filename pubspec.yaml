@@ -67,7 +67,8 @@ dependencies:
   geolocator: ^14.0.0 #ubicacion Gps, del dispositivo #error en la actualizacion 8.0.1 No named parameter with the name 'desiredAccuracy'.
   dropdown_search: ^6.0.2 #Combo con busqueda
   firebase_in_app_messaging: ^0.8.1+5
-
+  file_picker: ^8.1.2
+  mime: ^1.0.6
 
 
 dev_dependencies:

@@ -19,6 +19,9 @@ class RegistroUsuarioController extends GetxController {
   String SSID = 'MOVIL';
   String tipoUsuario = 'NACIONAL';
   String validaMail = 'N';
+////////////PARA IMAGEN
+  final Rxn<AdjuntoModel> adjuntoSeleccionado = Rxn<AdjuntoModel>();
+  final RxBool cargandoAdjunto = false.obs;
 
   // ==================== Controladores de texto ====================
   final controllerPrimerNombre = TextEditingController();
@@ -254,4 +257,34 @@ class RegistroUsuarioController extends GetxController {
       print('Error: Failed to get platform version.');
     }
   }
+  Future<void> seleccionarAdjunto() async {
+    try {
+      cargandoAdjunto.value = true;
+
+      final archivo = await FileAdjuntoHelper.seleccionarArchivo();
+
+      if (archivo != null) {
+        adjuntoSeleccionado.value = archivo;
+
+        if (archivo.superaCincoMb) {
+          DialogosAwesome.getInformationAceptar(
+            descripcion:
+            "El archivo seleccionado supera los 5 MB. Se recomienda conectarse a una red Wi-Fi para continuar con el envío.",
+            btnOkOnPress: () => Get.back(),
+          );
+        }
+      }
+    } catch (e) {
+      DialogosAwesome.getError(
+        descripcion: "No fue posible seleccionar el archivo: $e",
+      );
+    } finally {
+      cargandoAdjunto.value = false;
+    }
+  }
+
+  void eliminarAdjunto() {
+    adjuntoSeleccionado.value = null;
+  }
+
 }

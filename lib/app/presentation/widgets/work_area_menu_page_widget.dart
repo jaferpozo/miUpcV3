@@ -215,7 +215,7 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
         ),
       ),
       actions: [
-        if (widget.mostrarNotificacion)
+       /* if (widget.mostrarNotificacion)
           Obx(() {
             final int total = widget.numNotificacion.value;
             return Stack(
@@ -251,7 +251,7 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
                   ),
               ],
             );
-          }),
+          }),*/
       ],
     );
   }

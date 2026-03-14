@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
+import 'package:pne/app/domain/entities/evento_entity.dart';
 import 'dart:io' as doc;
 
 
@@ -47,3 +48,4 @@ part 'remote/host/url_api_provider_app.dart';
 part 'remote/host/host_app.dart';
 part 'remote/registro_alerta_vehiculos_api_provider.dart';
 part 'remote/alerta_violencia_api_provider.dart';
+part 'remote/alertas_delitos_api_provider.dart';
