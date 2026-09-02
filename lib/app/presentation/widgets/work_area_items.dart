@@ -58,14 +58,20 @@ class _WorkAreaItemsPageWidgetState extends State<WorkAreaItemsPageWidget> {
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtil();
 
-    return Scaffold(
+    return SafeArea(child: Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: getAppBar(widget.titleAppBar),
       bottomNavigationBar: bannerInferior(responsive),
       body: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Stack(
           children: [
-            _buildBackground(responsive),
+            /// Fondo completo, incluyendo área del status bar
+            Positioned.fill(
+              child: _buildBackground(responsive),
+            ),
+
+            /// Contenido protegido por SafeArea
             SafeArea(
               child: SingleChildScrollView(
                 child: Padding(
@@ -74,11 +80,17 @@ class _WorkAreaItemsPageWidgetState extends State<WorkAreaItemsPageWidget> {
                 ),
               ),
             ),
-            Obx(() => CargandoWidget(mostrar: widget.peticionServer.value)),
+
+            /// Loader
+            Obx(
+                  () => CargandoWidget(
+                mostrar: widget.peticionServer.value,
+              ),
+            ),
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildBackground(ResponsiveUtil responsive) {

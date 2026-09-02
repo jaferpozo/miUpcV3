@@ -39,11 +39,7 @@ class DeviceNetworkHelper {
   static Future<String> _getDeviceId() async {
     if (Platform.isAndroid) {
       final androidInfo = await _deviceInfo.androidInfo;
-
-      // IMEI no disponible para apps normales.
-      return androidInfo.id.isNotEmpty
-          ? androidInfo.id
-          : (androidInfo.model.isNotEmpty ? androidInfo.model : 'ANDROID_DEVICE');
+      return androidInfo.id.isNotEmpty ? androidInfo.id : 'ANDROID_DEVICE';
     }
 
     if (Platform.isIOS) {

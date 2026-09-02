@@ -1,4 +1,5 @@
 part of 'custom_widgets.dart';
+
 class SeleccionMapaEventoWidget extends StatefulWidget {
   final double latInicial;
   final double lngInicial;
@@ -25,6 +26,22 @@ class _SeleccionMapaEventoWidgetState
   void initState() {
     super.initState();
     puntoSeleccionado = LatLng(widget.latInicial, widget.lngInicial);
+  }
+
+  @override
+  void didUpdateWidget(covariant SeleccionMapaEventoWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.latInicial != widget.latInicial ||
+        oldWidget.lngInicial != widget.lngInicial) {
+      final nuevoPunto = LatLng(widget.latInicial, widget.lngInicial);
+
+      setState(() {
+        puntoSeleccionado = nuevoPunto;
+      });
+
+      mapController.move(nuevoPunto, mapController.camera.zoom);
+    }
   }
 
   void _actualizarPunto(LatLng point) {
@@ -59,14 +76,9 @@ class _SeleccionMapaEventoWidgetState
             ),
             children: [
               TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
+                urlTemplate: 'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'mmeo.system.pne',
                 maxZoom: 19,
-                tileBuilder: (context, widget, tile) {
-                  return widget;
-                },
-                errorImage: const AssetImage('assets/images/map_error.png'),
               ),
               MarkerLayer(
                 markers: [
@@ -84,9 +96,6 @@ class _SeleccionMapaEventoWidgetState
               ),
             ],
           ),
-
-
-
           Positioned(
             bottom: 12,
             left: 12,

@@ -10,7 +10,6 @@ class AlertasDelitosApiImpl extends AlertasDelitosRepository {
     try {
       final response =
       await alertasDelitosApiProviderImpl.consultaCatalogos(id);
-
       return response;
     } catch (e) {
       throw ExceptionHelper.captureError(e);
@@ -21,10 +20,8 @@ class AlertasDelitosApiImpl extends AlertasDelitosRepository {
   Future<EventoEntity> crearEvento(EventoEntity evento) async {
     try {
       final model = EventoModel.fromEntity(evento);
-
       final response =
       await alertasDelitosApiProviderImpl.crearEvento(model);
-
       return response;
     } catch (e) {
       throw ExceptionHelper.captureError(e);

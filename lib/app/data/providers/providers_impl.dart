@@ -7,6 +7,7 @@ import 'dart:io';
 
 //NECESARIOS PARA SUBIR ARCHIVOS
 import 'package:async/async.dart'; //DelegatingStream
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -32,6 +33,8 @@ import '../models/modulos.dart';
 import '../models/servicios.dart';
 import '../models/upc.dart';
 import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
 part 'local/local_store_provider.dart';
 

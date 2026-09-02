@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:pne/app/presentation/routes/app_pages.dart';
 import 'package:pne/app/presentation/routes/app_routes.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dependency_injection.dart';
 
 
@@ -31,7 +31,19 @@ class MainApp extends StatelessWidget {
 
       debugShowCheckedModeBanner: false,
 
-      locale: window.locale,// translations will be displayed in that locale
+      locale: const Locale('es', 'EC'),
+
+      supportedLocales: const [
+        Locale('es', 'EC'),
+        Locale('es', 'ES'),
+        Locale('en', 'US'),
+      ],
+
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],// translations will be displayed in that locale
       fallbackLocale: window.locale,
       initialRoute:  AppRoutes.SPLASH,
       initialBinding: DependencyInjection(),
@@ -39,7 +51,6 @@ class MainApp extends StatelessWidget {
       home: const Scaffold(
         backgroundColor:Colors.blueAccent,
         body: SafeArea(
-
           child: Center(
             child: Text('Hola'),
           ),

@@ -5,6 +5,8 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
 
   @override
   Widget build(BuildContext context) {
+    controller.mostrarDialogoTerminos(context);
+
     return WorkAreaItemsPageWidget(
       titleAppBar: controller.nombreModulo,
       peticionServer: controller.peticionServerState,
@@ -30,7 +32,7 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
             status: controller.status,
             onInit: controller.connectionStatusController,
           ),
-          _headerTecnico(responsive),
+         _headerTecnico(responsive),
           SizedBox(height: responsive.altoP(0.6)),
           _formCard(responsive),
           SizedBox(height: responsive.altoP(2.0)),
@@ -43,71 +45,52 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
 
   Widget _headerTecnico(ResponsiveUtil responsive) {
     return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.anchoP(4),
+      ),
       decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFF195BA6),
-            Color(0xFF0A2E5C),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.16),
+            color: Colors.black.withOpacity(0.06),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.all(responsive.anchoP(4)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.14),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Colors.white24),
-              ),
-              child: const Icon(
-                Icons.shield_outlined,
-                color: Colors.white,
-                size: 30,
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(
+            'assets/img/escpolicia.png', // cambia por tu ruta real
+            height: responsive.altoP(10),
+            fit: BoxFit.contain,
+          ),
+          Text(
+            "POLICIA NACIONAL DEL ECUADOR",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: const Color(0xFF0A3D78),
+              fontSize: responsive.diagonalP(2.2),
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.4,
             ),
-            SizedBox(width: responsive.anchoP(3)),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Registro de alerta ciudadana",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: responsive.diagonalP(2.0),
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Complete la información del evento para generar el registro ",
-                    style: TextStyle(
-                      color: Colors.white.withOpacity(0.92),
-                      fontSize: responsive.diagonalP(1.45),
-                      height: 1.35,
-                    ),
-                  ),
+          ),
 
-                ],
-              ),
+          Text(
+            "Registro de alerta ciudadana",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: const Color(0xFF5E728A),
+              fontSize: responsive.diagonalP(1.65),
+              fontWeight: FontWeight.w500,
+              height: 1.3,
             ),
-          ],
-        ),
+          ),
+          SizedBox(height: responsive.altoP(0.6)),
+        ],
       ),
     );
   }
@@ -139,7 +122,6 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
                 "Seleccione el tipo de evento y complete la información.",
                 responsive: responsive,
               ),
-              SizedBox(height: responsive.altoP(1.8)),
               Obx(() {
                 if (controller.cargandoEventosApi.value) {
                   return Container(
@@ -168,46 +150,85 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
                   },
                 );
               }),
-              SizedBox(height: responsive.altoP(1.7)),
-              _labelCampo("Descripción / observación", responsive),
+              SizedBox(height: responsive.altoP(1.5)),
+              _fechaEventoField(responsive, Get.context!),
+              SizedBox(height: responsive.altoP(1.5)),
+              _labelCampo("Descripción", responsive),
               const SizedBox(height: 8),
               Container(
-                decoration: _inputDecorationBox(),
                 child: ContadorTextArea(
                   maxLength: 250,
                   controller: controller.descripcionController,
                   onChanged: (texto) {},
                 ),
               ),
-              SizedBox(height: responsive.altoP(1.7)),
+
               _labelCampo("Referencia del lugar", responsive),
               const SizedBox(height: 8),
               _textFieldElegant(
                 controller: controller.referenciaController,
                 hint: "Ej.: Calles Japón y Eloy Alfaro, frente a farmacia",
                 icon: Icons.place_outlined,
-                maxLines: 2,
+                maxLines: 3,
               ),
-              SizedBox(height: responsive.altoP(2.0)),
               _sectionTitle(
                 icon: Icons.touch_app,
-                title: "Ubicación de la evento",
+                title: "Ubicación del evento",
                 subtitle:
                 "Toque el mapa para seleccionar la ubicación exacta de la evento.",
                 responsive: responsive,
               ),
+              SizedBox(height: responsive.altoP(1.0)),
               Obx(() {
-                final lat = controller.latitudEvento.value == 0.0
-                    ? (controller.latitudDispositivo.value != 0.0
-                    ? controller.latitudDispositivo.value
-                    : -0.1968769)
-                    : controller.latitudEvento.value;
+                final bool tieneUbicacionEvento =
+                    controller.latitudEvento.value != 0.0 &&
+                        controller.longitudEvento.value != 0.0;
 
-                final lng = controller.longitudEvento.value == 0.0
-                    ? (controller.longitudDispositivo.value != 0.0
-                    ? controller.longitudDispositivo.value
-                    : -78.511301)
-                    : controller.longitudEvento.value;
+                final bool tieneUbicacionDispositivo =
+                    controller.latitudDispositivo.value != 0.0 &&
+                        controller.longitudDispositivo.value != 0.0;
+
+                if (!tieneUbicacionEvento && !tieneUbicacionDispositivo) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FBFD),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFD7E3F1)),
+                    ),
+                    child: Column(
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 14),
+                        const Text(
+                          "Obteniendo ubicación actual...",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xFF0A2E5C),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await controller.obtenerUbicacionInicial();
+                          },
+                          icon: const Icon(Icons.my_location),
+                          label: const Text("Reintentar ubicación"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final double lat = tieneUbicacionEvento
+                    ? controller.latitudEvento.value
+                    : controller.latitudDispositivo.value;
+
+                final double lng = tieneUbicacionEvento
+                    ? controller.longitudEvento.value
+                    : controller.longitudDispositivo.value;
 
                 return SeleccionMapaEventoWidget(
                   latInicial: lat,
@@ -218,22 +239,36 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
                 );
               }),
               SizedBox(height: responsive.altoP(1.2)),
+             // _btnUsarMiUbicacion(responsive),
              // _panelCoordenadasSeleccionadas(responsive),
             //  SizedBox(height: responsive.altoP(2.0)),
-              _sectionTitle(
-                icon: Icons.person_outline_rounded,
-                title: "Datos de contacto",
-                subtitle:
-                "Estos campos permiten complementar el reporte y facilitan la gestión del evento.",
-                responsive: responsive,
-              ),
+              Obx(() {
+                return AdjuntoEventoWidget(
+                  archivo: controller.adjuntoSeleccionado.value,
+                  cargando: controller.cargandoAdjunto.value,
+                  onTomarFoto: () async {
+                    await controller.tomarFoto();
+                  },
+                  onGrabarVideo: () async {
+                    await controller.grabarVideo();
+                  },
+                  onSeleccionarArchivo: () async {
+                    await controller.seleccionarArchivoAdjunto();
+                  },
+                  onEliminar: () {
+                    controller.eliminarAdjunto();
+                  },
+                );
+              }),
               SizedBox(height: responsive.altoP(1.6)),
               _labelCampo("Seudónimo / nombre referencial", responsive),
               const SizedBox(height: 8),
               _textFieldElegant(
+
                 controller: controller.seudonimoController,
-                hint: "Ej.: Vecino_Alerta",
+                hint: "Ej.: Anónimo",
                 icon: Icons.badge_outlined,
+                maxLength: 30
               ),
               SizedBox(height: responsive.altoP(1.5)),
               _labelCampo("Número telefónico", responsive),
@@ -243,6 +278,7 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
                 hint: "Ej.: 0999999999",
                 icon: Icons.phone_android_outlined,
                 keyboardType: TextInputType.phone,
+                maxLength: 10
               ),
               SizedBox(height: responsive.altoP(1.5)),
               _labelCampo("Correo electrónico", responsive),
@@ -252,8 +288,9 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
                 hint: "Ej.: usuario@correo.com",
                 icon: Icons.alternate_email_outlined,
                 keyboardType: TextInputType.emailAddress,
+                maxLength: 50,
               ),
-             // SizedBox(height: responsive.altoP(1.8)),
+               SizedBox(height: responsive.altoP(1.8)),
               //_panelInformativoEstado(responsive),
             ],
           ),
@@ -261,7 +298,23 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
       ),
     );
   }
-
+  Widget _btnUsarMiUbicacion(ResponsiveUtil responsive) {
+    return ElevatedButton.icon(
+      onPressed: () async {
+        await controller.obtenerUbicacionInicial();
+      },
+      icon: const Icon(Icons.my_location),
+      label: const Text("Usar mi ubicación actual"),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFF195BA6),
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+      ),
+    );
+  }
   Widget _sectionTitle({
     required IconData icon,
     required String title,
@@ -271,9 +324,9 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F7FB),
+
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2EAF4)),
+
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,35 +387,74 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
       border: Border.all(color: const Color(0xFFD7E3F1)),
     );
   }
-
   Widget _textFieldElegant({
     required TextEditingController controller,
     required String hint,
     required IconData icon,
+    int maxLength = 500,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
-    return Container(
-      decoration: _inputDecorationBox(),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        maxLines: maxLines,
-        style: const TextStyle(
-          color: Color(0xFF243447),
-          fontWeight: FontWeight.w500,
-        ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.blueGrey.shade400),
-          prefixIcon: Icon(icon, color: const Color(0xFF195BA6)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 16,
+    final FocusNode focusNode = FocusNode();
+    final ValueNotifier<bool> hasFocus = ValueNotifier(false);
+
+    focusNode.addListener(() {
+      hasFocus.value = focusNode.hasFocus;
+    });
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: hasFocus,
+      builder: (_, focused, __) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF9FBFD),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: focused
+                  ? const Color(0xFF195BA6)
+                  : const Color(0xFFD7E3F1),
+              width: focused ? 2 : 1,
+            ),
+            boxShadow: focused
+                ? [
+              BoxShadow(
+                color: const Color(0xFF195BA6).withOpacity(0.15),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              )
+            ]
+                : [],
           ),
-        ),
-      ),
+          child: TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            maxLength: maxLength,
+            style: const TextStyle(
+              color: Color(0xFF243447),
+              fontWeight: FontWeight.w500,
+            ),
+            decoration: InputDecoration(
+              counterText: "",
+              hintText: hint,
+              hintStyle: TextStyle(color: Colors.blueGrey.shade400),
+              prefixIcon: Icon(
+                icon,
+                color: focused
+                    ? const Color(0xFF195BA6)
+                    : Colors.blueGrey.shade400,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 16,
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -463,90 +555,379 @@ class AlertasDelitosPage extends GetView<AlertasDelitosController> {
       final isLoading = controller.creandoEvento.value;
       final isPressed = controller.btnPressed.value;
 
-      return GestureDetector(
-        onTapDown: (_) => controller.btnPressed.value = true,
-        onTapUp: (_) async {
-          await Future.delayed(const Duration(milliseconds: 90));
-          controller.btnPressed.value = false;
+      return AbsorbPointer(
+        absorbing: isLoading,
+        child: GestureDetector(
+          onTapDown: (_) {
+            if (!isLoading) {
+              controller.btnPressed.value = true;
+            }
+          },
+          onTapUp: (_) async {
+            await Future.delayed(const Duration(milliseconds: 90));
+            controller.btnPressed.value = false;
 
-          if (isLoading) return;
+            if (isLoading) return;
 
-          if (!online) {
-            DialogosAwesome.getError(
-              descripcion:
-              "No tiene conexión a internet para realizar el registro.",
-            );
-            return;
-          }
+            if (!online) {
+              DialogosAwesome.getError(
+                descripcion:
+                "No tiene conexión a internet para realizar el registro.",
+              );
+              return;
+            }
 
-          await controller.crearEvento();
-        },
-        onTapCancel: () => controller.btnPressed.value = false,
-        child: AnimatedScale(
-          scale: isPressed ? 0.98 : 1.0,
-          duration: const Duration(milliseconds: 120),
-          curve: Curves.easeOut,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isLoading
-                    ? [
-                  Colors.blueGrey,
-                  Colors.blueGrey.shade700,
-                ]
-                    : const [
-                  Color(0xFF195BA6),
-                  Color(0xFF0A2E5C),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(isPressed ? 0.12 : 0.22),
-                  blurRadius: isPressed ? 6 : 14,
-                  offset: Offset(0, isPressed ? 2 : 6),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (isLoading) ...[
-                  const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.6,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            await controller.crearEvento();
+          },
+          onTapCancel: () => controller.btnPressed.value = false,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 180),
+            opacity: isLoading ? 0.90 : 1.0,
+            child: AnimatedScale(
+              scale: isPressed ? 0.98 : 1.0,
+              duration: const Duration(milliseconds: 120),
+              curve: Curves.easeOut,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                padding: const EdgeInsets.symmetric(vertical: 17, horizontal: 18),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: isLoading
+                        ? [
+                      Colors.blueGrey,
+                      Colors.blueGrey.shade700,
+                    ]
+                        : const [
+                      Color(0xFF195BA6),
+                      Color(0xFF0A2E5C),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isPressed ? 0.12 : 0.22),
+                      blurRadius: isPressed ? 6 : 14,
+                      offset: Offset(0, isPressed ? 2 : 6),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                ] else ...[
-                  const Icon(
-                    Icons.save_rounded,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Text(
-                  isLoading ? "REGISTRANDO EVENTO..." : "GUARDAR EVENTO",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: responsive.diagonalP(1.7),
-                    letterSpacing: 0.7,
-                  ),
+                  ],
                 ),
-              ],
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: isLoading
+                          ? const SizedBox(
+                        key: ValueKey('loading'),
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.6,
+                          valueColor:
+                          AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                          : const Icon(
+                        Icons.save_rounded,
+                        key: ValueKey('icon'),
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        isLoading ? "REGISTRANDO EVENTO..." : "GUARDAR EVENTO",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: responsive.diagonalP(1.7),
+                          letterSpacing: 0.7,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
       );
     });
   }
+  Widget _fechaEventoField(ResponsiveUtil responsive, BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _labelCampo("Fecha y hora del evento", responsive),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () async {
+            await controller.seleccionarFechaEvento(context);
+          },
+          child: Container(
+            decoration: _inputDecorationBox(),
+            child: AbsorbPointer(
+              child: TextFormField(
+                controller: controller.fechaEventoController,
+                style: const TextStyle(
+                  color: Color(0xFF243447),
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: InputDecoration(
+                  hintText: "Seleccione fecha y hora",
+                  hintStyle: TextStyle(color: Colors.blueGrey.shade400),
+                  prefixIcon: const Icon(
+                    Icons.event_outlined,
+                    color: Color(0xFF195BA6),
+                  ),
+                  suffixIcon: const Icon(
+                    Icons.access_time_rounded,
+                    color: Color(0xFF195BA6),
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
+
+class DialogoTerminos1800Delito extends GetView<AlertasDelitosController> {
+  const DialogoTerminos1800Delito();
+
+  @override
+  Widget build(BuildContext context) {
+    final responsive = ResponsiveUtil();
+
+    return Center(
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.symmetric(
+          horizontal: responsive.anchoP(2),
+        ),
+        child: Container(
+          width: double.infinity,
+          constraints: BoxConstraints(
+            maxWidth: 900,
+            maxHeight: responsive.altoP(90),
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F7FB),
+            borderRadius: BorderRadius.circular(26),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.14),
+                blurRadius: 28,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(26),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ===================== CABECERA =====================
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.anchoP(4),
+                    vertical: responsive.altoP(2),
+                  ),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Color(0xFF08285C),
+                        Color(0xFF204B8F),
+                      ],
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 26,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Color(0xFFC9141B),
+                            width: 3,
+                          ),
+                        ),
+                        child: Text(
+                          "1800-DELITO",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: const Color(0xFFC9141B),
+                            fontSize: responsive.diagonalP(2.8),
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: responsive.altoP(1.4)),
+                      Text(
+                        "EL REGISTRO ES CONFIDENCIAL Y ANÓNIMO",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: const Color(0xFFFFD94A),
+                          fontSize: responsive.diagonalP(1.7),
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.6,
+                        ),
+                      ),
+                      SizedBox(height: responsive.altoP(0.7)),
+                      Text(
+                        "Tu identidad esta protegida",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: responsive.diagonalP(1.4),
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ===================== CUERPO =====================
+                Flexible(
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Opacity(
+                          opacity: 0.08,
+                          child: SvgPicture.asset(
+                            'assets/img/escudo-policia-b.svg',
+                            width: responsive.anchoP(38),
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: responsive.anchoP(4.2),
+                            vertical: responsive.altoP(1),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "La Policía Nacional del Ecuador pone a tu disposición este canal seguro para compartir información que permita prevenir o investigar posibles hechos delictivos.\n\n"
+                                    "Tu colaboración es tratada con estricta confidencialidad y seguridad, conforme a la Ley Orgánica de Protección de Datos Personales del Ecuador; en ningún caso se revelará tu identidad sin autorización.\n\n"
+                                    "Los datos de esta denuncia se usan únicamente con fines institucionales de análisis, verificación y atención, para fortalecer la seguridad ciudadana.\n\n"
+                                    "Cualquier información, por mínima que sea, puede prevenir delitos y proteger a otras personas.\n\n"
+                                    "Al continuar, autorizas el tratamiento de estos datos y aceptas que usemos la ubicación de tu dispositivo para capturar automáticamente la georreferencia del reporte.",
+                                textAlign: TextAlign.justify,
+                                style: TextStyle(
+                                  fontSize: responsive.diagonalP(1.45),
+                                  color: const Color(0xFF20252B),
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ===================== DIVISOR =====================
+                Container(
+                  height: 1,
+                  color: const Color(0xFFE0E5EC),
+                ),
+
+                // ===================== BOTONES =====================
+                Container(
+                  width: double.infinity,
+                  color: const Color(0xFFF8FAFD),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: responsive.anchoP(3.5),
+                    vertical: responsive.altoP(2.2),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: responsive.anchoP(18),
+                        child: OutlinedButton(
+                          onPressed: controller.rechazarDialogoTerminos,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: const BorderSide(
+                              color: Color(0xFF7B7F86),
+                              width: 1.4,
+                            ),
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            "No",
+                            style: TextStyle(
+                              color: const Color(0xFF5E636B),
+                              fontWeight: FontWeight.w700,
+                              fontSize: responsive.diagonalP(1.45),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: responsive.anchoP(1.6)),
+                      SizedBox(
+                        width: responsive.anchoP(26),
+                        child: ElevatedButton(
+                          onPressed: controller.aceptarDialogoTerminos,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 0,
+                            backgroundColor: const Color(0xFF0A3D78),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: Text(
+                            "Si, acepto",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: responsive.diagonalP(1.45),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

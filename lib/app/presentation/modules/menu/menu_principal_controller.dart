@@ -1,24 +1,31 @@
 part of '../controllers.dart';
+
 class MenuPrincipalController extends GetxController {
   // ======================= ⚙️ ESTADOS ==========================
   final RxBool peticionServerState = false.obs;
   final Rx<Uint8List?> fotoPerfilBytes = Rx<Uint8List?>(null);
   final RxString userPref = ''.obs;
-
+  final RxString metodoRegistro = ''.obs;
   final CheckInternetConnection internetChecker = CheckInternetConnection();
   late StreamSubscription connectionSubscription;
   final Rx<ConnectionStatus> status = ConnectionStatus.online.obs;
+  final RxString correoUsuario = ''.obs;
+  final RxString telefonoUsuario = ''.obs;
   // ======================= 🧩 DEPENDENCIAS ======================
   final GpsController gpsController = Get.find<GpsController>();
-  final ModulosRepository _apiModulosRepository = Get.find<ModulosRepository>();
-  final AlertaViolenciaRepository _apiAlertaViolenciaRepository = Get.find<AlertaViolenciaRepository>();
+  final ModulosRepository _apiModulosRepository =
+  Get.find<ModulosRepository>();
+  final AlertaViolenciaRepository _apiAlertaViolenciaRepository =
+  Get.find<AlertaViolenciaRepository>();
   final LocalStoreImpl _localStoreImpl = Get.find<LocalStoreImpl>();
-late  String botonAlerta='';
+
+  late String botonAlerta = '';
+
   // ======================= 🗂️ DATOS ============================
   final RxList<Modulo> listaModulo = <Modulo>[].obs;
   final RxList<Permiso> listaPermiso = <Permiso>[].obs;
   final RxList<Dato> listaPermisoBoton = <Dato>[].obs;
-
+  final RxInt numNotificacion = 0.obs;
   final RxList<ListaAlerta> listaAlertasUsuario = <ListaAlerta>[].obs;
 
   Rx<Modulo> datosModulos = Modulo(
@@ -34,11 +41,10 @@ late  String botonAlerta='';
   Rx<GaleryCameraModel?> mGaleryCameraModel = Rx<GaleryCameraModel?>(null);
 
   String acuerdo = "";
-// ✅ Estado del permiso para mostrar el botón
-  final RxBool tienePermisoAlerta = false.obs;
 
-// (opcional) para evitar parpadeos mientras consulta
+  final RxBool tienePermisoAlerta = false.obs;
   final RxBool cargandoPermisoAlerta = false.obs;
+
   // =============================================================
   // 🔹 CICLO DE VIDA
   // =============================================================
@@ -61,30 +67,6 @@ late  String botonAlerta='';
     consultaAlertasUsuarioNumero();
   }
 
-  // =============================================================
-  // 🧠 INICIALIZACIÓN Y CONFIGURACIÓN
-  // =============================================================
-
-  Future<void> _init() async {
-    await consultaPermisosPolicia();
-    await generaToken();
-    print("🌎 Locale actual: ${Get.deviceLocale}");
-  }
-
-  Future<void> _cargarFotoPerfil() async {
-    final bytes = await _localStoreImpl.getFoto();
-    if (bytes != null) {
-      print("🖼️ Foto de perfil cargada correctamente (${bytes.length} bytes)");
-      fotoPerfilBytes.value = bytes;
-    } else {
-      print("⚠️ No se encontró foto de perfil en almacenamiento local.");
-    }
-  }
-
-
-  // =============================================================
-  // 🌐 CONTROL DE CONEXIÓN
-  // =============================================================
   @override
   void onClose() {
     connectionSubscription.cancel();
@@ -92,7 +74,37 @@ late  String botonAlerta='';
     super.onClose();
   }
 
+  // =============================================================
+  // 🧠 INICIALIZACIÓN Y CONFIGURACIÓN
+  // =============================================================
+  Future<void> _init() async {
+    await consultaPermisosPolicia();
+    await generaToken();
+    metodoRegistro.value = (await _localStoreImpl.getMetodoRegistro())!;
+    print("🌎 Locale actual: ${Get.deviceLocale}");
+  }
 
+  Future<void> _cargarFotoPerfil() async {
+    try {
+
+      final bytes = await _localStoreImpl.getFoto();
+      if (bytes != null) {
+        print("🖼️ Foto de perfil cargada correctamente (${bytes.length} bytes)");
+        fotoPerfilBytes.value = bytes;
+      } else {
+        fotoPerfilBytes.value = null;
+        print("⚠️ No se encontró foto de perfil en almacenamiento local.");
+      }
+    } catch (e) {
+      fotoPerfilBytes.value = null;
+      print("❌ Error al cargar foto de perfil: $e");
+    }
+  }
+
+
+  // =============================================================
+  // 🌐 CONTROL DE CONEXIÓN
+  // =============================================================
   void connectionStatusController() {
     connectionSubscription =
         internetChecker.internetStatus().listen((newStatus) {
@@ -127,13 +139,11 @@ late  String botonAlerta='';
   // =============================================================
   // 📦 CARGA DE MÓDULOS
   // =============================================================
-
   Future<void> cargarDatosLista() async {
     try {
       peticionServerState(true);
       listaModulo.clear();
 
-      // 🔹 Primero consulta permisos
       await consultaPermisosBotonAlerta();
 
       final lista = await _apiModulosRepository.buscaListaModulos();
@@ -143,9 +153,7 @@ late  String botonAlerta='';
         return;
       }
 
-      // 🔹 Filtrar módulos según permiso
       final listaFiltrada = lista.where((mod) {
-        // Ejemplo: si el módulo se llama ALERTA o tiene código específico
         if (mod.tituloModulo == "ALERTAS TEMPRANAS") {
           return tienePermisoAlerta.value;
         }
@@ -157,13 +165,16 @@ late  String botonAlerta='';
       await _localStoreImpl.setDatosListaModulos(
         listModulos: listaFiltrada,
       );
-
+      print('moduloooooooo '+listaModulo[0].descripcionModulo);
+      print('moduloooooooo '+listaModulo[1].descripcionModulo);
+      print('moduloooooooo '+listaModulo[2].descripcionModulo);
     } on ServerException {
       await _cargarModulosOffline();
     } finally {
       peticionServerState(false);
     }
   }
+
   // =============================================================
   // 🧍‍♂️ PERMISOS Y ALERTAS
   // =============================================================
@@ -171,14 +182,17 @@ late  String botonAlerta='';
     try {
       cargandoPermisoAlerta.value = true;
       final idGenPersona = await _localStoreImpl.getIdUser();
+
       if (idGenPersona == 0) {
         tienePermisoAlerta.value = false;
         return;
       }
-      final  resp = await _apiModulosRepository.buscaPermisoBoton(
+
+      final resp = await _apiModulosRepository.buscaPermisoBoton(
         idGenPersona: idGenPersona,
         nomApp: "PCQR",
       );
+
       tienePermisoAlerta.value = (resp.msj.toLowerCase() == "existe");
     } on ServerException {
       tienePermisoAlerta.value = false;
@@ -189,22 +203,20 @@ late  String botonAlerta='';
     }
   }
 
-
-
-  // =============================================================
-  // 🧍‍♂️ PERMISOS Y ALERTAS
-  // =============================================================
-
   Future<void> consultaPermisosPolicia() async {
     try {
       final idGenUsuario = await _localStoreImpl.getIdUser();
-      if (idGenUsuario == 0)
-        return;
+      if (idGenUsuario == 0) return;
+
       peticionServerState(true);
-      listaPermiso.value = await _apiAlertaViolenciaRepository.consultaPermisosPolicia(idGenUsuario);
-      if (listaPermiso[0].servicio=="N"){
-        AppConfig.servicio.value=false;
+
+      listaPermiso.value = await _apiAlertaViolenciaRepository
+          .consultaPermisosPolicia(idGenUsuario);
+
+      if (listaPermiso.isNotEmpty && listaPermiso[0].servicio == "N") {
+        AppConfig.servicio.value = false;
       }
+
       await generaToken();
     } on ServerException {
       await _cargarModulosOffline();
@@ -217,8 +229,11 @@ late  String botonAlerta='';
     try {
       final idGenPersona = await _localStoreImpl.getIdUser();
       peticionServerState(true);
+
       listaAlertasUsuario.value =
-      await _apiAlertaViolenciaRepository.consultaListaAlertasUsuario(idGenPersona);
+      await _apiAlertaViolenciaRepository.consultaListaAlertasUsuario(
+        idGenPersona,
+      );
     } on ServerException {
       // manejar errores sin interrumpir
     } finally {
@@ -229,7 +244,6 @@ late  String botonAlerta='';
   // =============================================================
   // 📡 GPS Y UBICACIÓN
   // =============================================================
-
   Future<void> verificarGps() async {
     final gpsActivo = await gpsController.verificarGPS();
     if (!gpsActivo) return;
@@ -256,8 +270,6 @@ late  String botonAlerta='';
   // =============================================================
   // 🔔 NOTIFICACIONES (FCM)
   // =============================================================
-
-  /// Solicita permisos y genera el token de FCM
   Future<void> initPermisosNotificaciones() async {
     final messaging = FirebaseMessaging.instance;
     final settings = await messaging.requestPermission(
@@ -274,7 +286,6 @@ late  String botonAlerta='';
     }
   }
 
-  /// Genera el token FCM y lo registra en el servidor
   Future<void> generaToken() async {
     try {
       final settings = await FirebaseMessaging.instance.requestPermission();
@@ -304,37 +315,114 @@ late  String botonAlerta='';
     }
   }
 
-  /// Inicializa recepción de notificaciones mientras la app está activa
   void _initNotificaciones() {
-    final messaging = FirebaseMessaging.instance;
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final titulo = message.notification?.title ?? "Notificación";
       final cuerpo = message.notification?.body ?? "Nuevo mensaje";
       final data = message.data;
 
-      DialogosAwesome.getSucess(btnOkOnPress: (){
-        Get.back();
-        if (data["tipo"] == "NUEVO_EVENTO") {
-          Get.toNamed(AppRoutes.DETALLEALERTAS, parameters: {
-            "id": data["idEvento"].toString(),
-          });
-        }
-
-      },
+      DialogosAwesome.getSucess(
+        btnOkOnPress: () {
+          Get.back();
+          if (data["tipo"] == "NUEVO_EVENTO") {
+            Get.toNamed(AppRoutes.DETALLEALERTAS, parameters: {
+              "id": data["idEvento"].toString(),
+            });
+          }
+        },
         title: titulo,
         descripcion: cuerpo,
       );
-
     });
   }
-  Future<void> _verificaDatos() async {
-    userPref.value = await _localStoreImpl.getDatosUsuario();
-    acuerdo = await _localStoreImpl.getDatosAcuerdo();
+  String obtenerSaludo() {
+    final hora = DateTime.now().hour;
 
-    // 🔹 Carga la foto del usuario guardada
-    final bytes = await _localStoreImpl.getFoto();
-    if (bytes != null)
-      fotoPerfilBytes.value = bytes;
+    if (hora >= 5 && hora < 12) {
+      return 'Buenos días';
+    } else if (hora >= 12 && hora < 18) {
+      return 'Buenas tardes';
+    } else {
+      return 'Buenas noches';
+    }
   }
+  Map<String, dynamic> getMetodoAuthUI(String metodo) {
+    switch (metodo.toLowerCase()) {
+      case 'google':
+        return {
+          'icono': Icons.g_mobiledata_rounded,
+          'titulo': 'Autenticado con Google',
+          'subtitulo': 'Acceso social seguro',
+          'color': const Color(0xFFDB4437),
+        };
+      case 'facebook':
+        return {
+          'icono': Icons.facebook_rounded,
+          'titulo': 'Autenticado con Facebook',
+          'subtitulo': 'Acceso social vinculado',
+          'color': const Color(0xFF1877F2),
+        };
+      default:
+        return {
+          'icono': Icons.badge_rounded,
+          'titulo': 'Registro manual',
+          'subtitulo': 'Perfil creado localmente',
+          'color': const Color(0xFF00A896),
+        };
+    }
+  }
+  Future<void> _verificaDatos() async {
+    try {
+      acuerdo = await _localStoreImpl.getDatosAcuerdo();
 
+      String nombreCompleto = '';
+      try {
+        nombreCompleto = await _localStoreImpl.getUserName();
+      } catch (_) {
+        nombreCompleto = '';
+      }
+
+      if (nombreCompleto.trim().isEmpty) {
+        final data = await _localStoreImpl.getDatosUsuarioCompleto();
+        if (data != null) {
+          final nombre = (data['nombre'] ?? '').toString().trim();
+          final apellido1 = (data['apellido1'] ?? '').toString().trim();
+          final apellido2 = (data['apellido2'] ?? '').toString().trim();
+
+          nombreCompleto = '$nombre $apellido1 $apellido2'
+              .replaceAll(RegExp(r'\s+'), ' ')
+              .trim();
+
+          correoUsuario.value = (data['correo'] ?? '').toString().trim();
+          telefonoUsuario.value = (data['telefono'] ?? '').toString().trim();
+        }
+      } else {
+        final data = await _localStoreImpl.getDatosUsuarioCompleto();
+        if (data != null) {
+          correoUsuario.value = (data['correo'] ?? '').toString().trim();
+          telefonoUsuario.value = (data['telefono'] ?? '').toString().trim();
+        }
+      }
+
+      userPref.value = nombreCompleto;
+      metodoRegistro.value =
+          (await _localStoreImpl.getMetodoRegistro() ?? '').trim();
+
+      final bytes = await _localStoreImpl.getFoto();
+      if (bytes != null) {
+        fotoPerfilBytes.value = bytes;
+      }
+
+      print("✅ Nombre cargado en menú: ${userPref.value}");
+      print("✅ Correo cargado: ${correoUsuario.value}");
+      print("✅ Teléfono cargado: ${telefonoUsuario.value}");
+      print("✅ Método de registro: ${metodoRegistro.value}");
+    } catch (e) {
+      userPref.value = '';
+      metodoRegistro.value = '';
+      correoUsuario.value = '';
+      telefonoUsuario.value = '';
+      print("❌ Error en _verificaDatos: $e");
+    }
+  }
 }

@@ -3,7 +3,6 @@ import 'dart:math';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
-import 'dart:ffi';
 import 'package:flutter/material.dart';
 
 import 'package:awesome_dialog/awesome_dialog.dart';

@@ -1,4 +1,10 @@
-part of 'models.dart';
+part of "models.dart";
+
+EventoModel eventoModelFromJson(String str) =>
+    EventoModel.fromJson(json.decode(str));
+
+String eventoModelToJson(EventoModel data) => json.encode(data.toJson());
+
 class EventoModel extends EventoEntity {
   EventoModel({
     super.id,
@@ -14,58 +20,75 @@ class EventoModel extends EventoEntity {
     required super.nombreSeudonimo,
     required super.numeroTelefono,
     required super.correoElectronico,
+    super.urlArchivoRespaldo,
     super.nombreArchivoRespaldo,
+    super.tipoMimeArchivoRespaldo,
+    super.tamanioArchivoRespaldo,
     required super.direccionIp,
     required super.agenteUsuario,
     required super.estado,
     required super.fechaCreacion,
     required super.fechaActualizacion,
+    super.archivoAdjunto,
   });
 
   factory EventoModel.fromJson(Map<String, dynamic> json) {
     return EventoModel(
-      id: json['id'],
-      idDispositivo: json['idDispositivo'] ?? '',
-      tipoEvento: json['tipoEvento'] ?? '',
-      fechaEvento: (json['fechaEvento']),
-      descripcionEvento: json['descripcionEvento'] ?? '',
-      referenciaLugar: json['referenciaLugar'] ?? '',
-      latitudDispositivo: (json['latitudDispositivo'] as num).toDouble(),
-      longitudDispositivo: (json['longitudDispositivo'] as num).toDouble(),
-      latitudEvento: (json['latitudEvento'] as num).toDouble(),
-      longitudEvento: (json['longitudEvento'] as num).toDouble(),
-      nombreSeudonimo: json['nombreSeudonimo'] ?? '',
-      numeroTelefono: json['numeroTelefono'] ?? '',
-      correoElectronico: json['correoElectronico'] ?? '',
-      nombreArchivoRespaldo: json['nombreArchivoRespaldo'],
-      direccionIp: json['direccionIp'] ?? '',
-      agenteUsuario: json['agenteUsuario'] ?? '',
-      estado: json['estado'] ?? '',
-      fechaCreacion: (json['fechaCreacion']),
-      fechaActualizacion: (json['fechaActualizacion']),
+      id: json["id"],
+      idDispositivo: json["idDispositivo"] ?? '',
+      tipoEvento: json["tipoEvento"] ?? '',
+      fechaEvento: json["fechaEvento"],
+      descripcionEvento: json["descripcionEvento"] ?? '',
+      referenciaLugar: json["referenciaLugar"] ?? '',
+      latitudDispositivo:
+      double.tryParse(json["latitudDispositivo"].toString()) ?? 0.0,
+      longitudDispositivo:
+      double.tryParse(json["longitudDispositivo"].toString()) ?? 0.0,
+      latitudEvento:
+      double.tryParse(json["latitudEvento"].toString()) ?? 0.0,
+      longitudEvento:
+      double.tryParse(json["longitudEvento"].toString()) ?? 0.0,
+      nombreSeudonimo: json["nombreSeudonimo"] ?? '',
+      numeroTelefono: json["numeroTelefono"] ?? '',
+      correoElectronico: json["correoElectronico"] ?? '',
+      urlArchivoRespaldo: json["urlArchivoRespaldo"],
+      nombreArchivoRespaldo: json["nombreArchivoRespaldo"],
+      tipoMimeArchivoRespaldo: json["tipoMimeArchivoRespaldo"],
+      tamanioArchivoRespaldo: json["tamanioArchivoRespaldo"] != null
+          ? int.tryParse(json["tamanioArchivoRespaldo"].toString())
+          : null,
+      direccionIp: json["direccionIp"] ?? '',
+      agenteUsuario: json["agenteUsuario"] ?? '',
+      estado: json["estado"] ?? '',
+      fechaCreacion: json["fechaCreacion"],
+      fechaActualizacion: json["fechaActualizacion"],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'idDispositivo': idDispositivo,
-      'tipoEvento': tipoEvento,
-      'fechaEvento': fechaEvento,
-      'descripcionEvento': descripcionEvento,
-      'referenciaLugar': referenciaLugar,
-      'latitudDispositivo': latitudDispositivo,
-      'longitudDispositivo': longitudDispositivo,
-      'latitudEvento': latitudEvento,
-      'longitudEvento': longitudEvento,
-      'nombreSeudonimo': nombreSeudonimo,
-      'numeroTelefono': numeroTelefono,
-      'correoElectronico': correoElectronico,
-      'nombreArchivoRespaldo': nombreArchivoRespaldo,
-      'direccionIp': direccionIp,
-      'agenteUsuario': agenteUsuario,
-      'estado': estado,
-      'fechaCreacion': fechaCreacion,
-      'fechaActualizacion': fechaActualizacion,
+      "id": id,
+      "idDispositivo": idDispositivo,
+      "tipoEvento": tipoEvento,
+      "fechaEvento": fechaEvento,
+      "descripcionEvento": descripcionEvento,
+      "referenciaLugar": referenciaLugar,
+      "latitudDispositivo": latitudDispositivo,
+      "longitudDispositivo": longitudDispositivo,
+      "latitudEvento": latitudEvento,
+      "longitudEvento": longitudEvento,
+      "nombreSeudonimo": nombreSeudonimo,
+      "numeroTelefono": numeroTelefono,
+      "correoElectronico": correoElectronico,
+      "urlArchivoRespaldo": urlArchivoRespaldo,
+      "nombreArchivoRespaldo": nombreArchivoRespaldo,
+      "tipoMimeArchivoRespaldo": tipoMimeArchivoRespaldo,
+      "tamanioArchivoRespaldo": tamanioArchivoRespaldo,
+      "direccionIp": direccionIp,
+      "agenteUsuario": agenteUsuario,
+      "estado": estado,
+      "fechaCreacion": fechaCreacion,
+      "fechaActualizacion": fechaActualizacion,
     };
   }
 
@@ -84,12 +107,16 @@ class EventoModel extends EventoEntity {
       nombreSeudonimo: entity.nombreSeudonimo,
       numeroTelefono: entity.numeroTelefono,
       correoElectronico: entity.correoElectronico,
+      urlArchivoRespaldo: entity.urlArchivoRespaldo,
       nombreArchivoRespaldo: entity.nombreArchivoRespaldo,
+      tipoMimeArchivoRespaldo: entity.tipoMimeArchivoRespaldo,
+      tamanioArchivoRespaldo: entity.tamanioArchivoRespaldo,
       direccionIp: entity.direccionIp,
       agenteUsuario: entity.agenteUsuario,
       estado: entity.estado,
       fechaCreacion: entity.fechaCreacion,
       fechaActualizacion: entity.fechaActualizacion,
+      archivoAdjunto: entity.archivoAdjunto,
     );
   }
 }

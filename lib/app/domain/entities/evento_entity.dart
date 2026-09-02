@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class EventoEntity {
   final int? id;
   final String idDispositivo;
@@ -12,12 +14,19 @@ class EventoEntity {
   final String nombreSeudonimo;
   final String numeroTelefono;
   final String correoElectronico;
+  final String? urlArchivoRespaldo;
   final String? nombreArchivoRespaldo;
+  final String? tipoMimeArchivoRespaldo;
+  final int? tamanioArchivoRespaldo;
   final String direccionIp;
   final String agenteUsuario;
   final String estado;
   final String fechaCreacion;
   final String fechaActualizacion;
+
+  /// NUEVO: archivo local para multipart
+  final File? archivoAdjunto;
+
   EventoEntity({
     this.id,
     required this.idDispositivo,
@@ -32,12 +41,15 @@ class EventoEntity {
     required this.nombreSeudonimo,
     required this.numeroTelefono,
     required this.correoElectronico,
+    this.urlArchivoRespaldo,
     this.nombreArchivoRespaldo,
+    this.tipoMimeArchivoRespaldo,
+    this.tamanioArchivoRespaldo,
     required this.direccionIp,
     required this.agenteUsuario,
     required this.estado,
     required this.fechaCreacion,
     required this.fechaActualizacion,
-
+    this.archivoAdjunto,
   });
 }

@@ -50,27 +50,13 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
   @override
   void initState() {
     super.initState();
-    _loadVersion();
   }
 
-  _loadVersion() async {
-    String _version = await UtilidadesUtil.getVersionCodeNameApp();
-    setState(() => ver = _version);
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveUtil();
-    Widget wgImgFondo = SingleChildScrollView(
-      child: SizedBox(
-        height: responsive.alto,
-        width: responsive.ancho,
-        child: Image.asset(
-          widget.imgFondo ?? AppImages.imgFondo1,
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
 
     return SafeArea(
       child: Scaffold(
@@ -80,48 +66,60 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
         appBar: getAppBar(),
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: SafeArea(
-            child: SingleChildScrollView(
-              child: Stack(
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Image.asset(
+                  widget.imgFondo ?? AppImages.imgarea,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              // ✅ El contenido ya no va dentro de SingleChildScrollView
+              Column(
                 children: [
-                  wgImgFondo,
-                  Column(
-                    children: [
-                      if (widget.title.isNotEmpty)
+                  if (widget.title.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        widget.title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: responsive.anchoP(7),
+                          color: const Color(0xFF06245B),
+                        ),
+                      ),
+                    ),
+
+                  if (widget.foto64 != null)
+                    Column(
+                      children: [
+                        SizedBox(height: responsive.altoP(2.0)),
+                        imgPerfilRedonda(size: 30, img: widget.foto64),
+                        SizedBox(height: responsive.altoP(1.0)),
                         Text(
-                          widget.title,
+                          widget.name,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: responsive.anchoP(7),
-                            color: const Color(0xFF06245B),
+                            fontSize: responsive.anchoP(4.5),
+                            color: Colors.black.withOpacity(0.8),
                           ),
                         ),
-                      if (widget.foto64 != null)
-                        Column(
-                          children: [
-                            SizedBox(height: responsive.altoP(2.0)),
-                            imgPerfilRedonda(size: 30, img: widget.foto64),
-                            SizedBox(height: responsive.altoP(1.0)),
-                            Text(
-                              widget.name,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: responsive.anchoP(4.5),
-                                color: Colors.black.withOpacity(0.8),
-                              ),
-                            ),
-                            SizedBox(height: responsive.altoP(2)),
-                          ],
-                        ),
-                      widget.contenido,
-                    ],
+                        SizedBox(height: responsive.altoP(2)),
+                      ],
+                    ),
+
+                  // ✅ Esto permite que el contenido use Expanded/GridView sin romper
+                  Expanded(
+                    child: widget.contenido,
                   ),
-                  Obx(() => CargandoWidget(mostrar: widget.peticionServer.value)),
                 ],
               ),
-            ),
+
+              Obx(() => CargandoWidget(mostrar: widget.peticionServer.value)),
+            ],
           ),
         ),
       ),
@@ -255,7 +253,153 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       ],
     );
   }
+  Widget _buildDrawerHeader({
+    required ResponsiveUtil responsive,
+    required Uint8List? bytes,
+    required String nombre,
+  }) {
+    return FutureBuilder<String>(
+      future: _localStoreImpl.getDatosMail(),
+      builder: (context, snapshot) {
+        final correo = (snapshot.data ?? '').trim();
 
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.10),
+            borderRadius: BorderRadius.circular(26),
+            border: Border.all(color: Colors.white24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.14),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.white.withOpacity(0.95),
+                          Colors.white.withOpacity(0.58),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.18),
+                          blurRadius: 8,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: responsive.altoP(5.2),
+                      backgroundColor: Colors.grey[200],
+                      backgroundImage:
+                      bytes != null ? MemoryImage(bytes, scale: 1) : null,
+                      child: bytes == null
+                          ? Icon(
+                        Icons.person_rounded,
+                        size: responsive.altoP(4.6),
+                        color: Colors.grey,
+                      )
+                          : null,
+                    ),
+                  ),
+                  Container(
+                    width: 18,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF35C759),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              Text(
+                nombre.isNotEmpty ? nombre : "Usuario",
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: responsive.diagonalP(1.24),
+                  height: 1.1,
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.email_outlined,
+                      color: Colors.white70,
+                      size: 14,
+                    ),
+                    const SizedBox(width: 6),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 180),
+                      child: Text(
+                        correo.isNotEmpty ? correo : "email@dominio.com",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: responsive.diagonalP(0.82),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildQuickStatusChip(
+                    icon: Icons.verified_user_rounded,
+                    text: 'Activo',
+                  ),
+                  const SizedBox(width: 8),
+                  _buildQuickStatusChip(
+                    icon: Icons.security_rounded,
+                    text: 'Seguro',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
   // =======================================================
   // 🔹 DRAWER LATERAL
   // =======================================================
@@ -265,89 +409,155 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
     final responsive = ResponsiveUtil();
 
     return ClipRRect(
-      borderRadius: const BorderRadius.horizontal(right: Radius.circular(30)),
+      borderRadius: const BorderRadius.horizontal(right: Radius.circular(32)),
       child: Drawer(
         backgroundColor: Colors.transparent,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.white.withOpacity(0.15), Colors.white.withOpacity(0.05)],
+                colors: [
+                  const Color(0xFF0A2747).withOpacity(0.96),
+                  const Color(0xFF11457F).withOpacity(0.92),
+                  const Color(0xFF5D7286).withOpacity(0.86),
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
-              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 8, offset: Offset(0, 4))],
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 12,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: SafeArea(
               child: Column(
                 children: [
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.power_settings_new, color: Colors.redAccent),
-                      onPressed: () => exit(0),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 10, 0),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 7,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.dashboard_customize_rounded,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Menú principal',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: responsive.diagonalP(0.82),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withOpacity(0.14),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.redAccent.withOpacity(0.35),
+                            ),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.power_settings_new_rounded,
+                              color: Colors.white,
+                            ),
+                            tooltip: 'Salir',
+                            onPressed: () => exit(0),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  // 👇 FOTO Y DATOS REACTIVOS DESDE MenuPrincipalController
+                  const SizedBox(height: 10),
+
                   Obx(() {
                     final bytes = menuController.fotoPerfilBytes.value;
-                    final nombre = menuController.userPref.value;
+                    final nombre = menuController.userPref.value.trim();
 
-                    return Column(
-                      children: [
-                        CircleAvatar(
-                          radius: responsive.altoP(10),
-                          backgroundColor: Colors.grey[200],
-                          backgroundImage: bytes != null ? MemoryImage(bytes) : null,
-                          child: bytes == null
-                              ? Icon(Icons.person, size: responsive.altoP(8), color: Colors.grey)
-                              : null,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          nombre.isNotEmpty ? nombre : "Usuario",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: responsive.diagonalP(1.6),
-                          ),
-                        ),
-                        FutureBuilder<String>(
-                          future: _localStoreImpl.getDatosMail(),
-                          builder: (context, snapshot) {
-                            return Text(
-                              snapshot.data ?? "email@dominio.com",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: responsive.diagonalP(1.2),
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                    return _buildDrawerHeader(
+                      responsive: responsive,
+                      bytes: bytes,
+                      nombre: nombre,
                     );
                   }),
 
-                  // OPCIONES DE NAVEGACIÓN
+                  const SizedBox(height: 18),
+
                   Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: [
-                        _drawerItem(Icons.home, "Inicio", () {
-                          Get.offAllNamed(AppRoutes.SPLASH);
-                        }),
-                        _drawerItem(Icons.share, "Compartir App", () {
-                          Share.share("https://play.google.com/store/apps/details?id=com.miupc");
-                        }),
-                        _drawerItem(Icons.person, "Registrar / Editar Datos", verificaTConexion),
-                      ],
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.07),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          _drawerItem(
+                            icon: Icons.home_rounded,
+                            label: "Inicio",
+                            subtitle: "Volver a la pantalla principal",
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Get.offAllNamed(AppRoutes.SPLASH);
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          _drawerItem(
+                            icon: Icons.share_rounded,
+                            label: "Compartir App",
+                            subtitle: "Enviar enlace de descarga",
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              Share.share(
+                                "https://play.google.com/store/apps/details?id=com.miupc",
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          _drawerItem(
+                            icon: Icons.person_rounded,
+                            label: "Registrar / Editar Datos",
+                            subtitle: "Actualizar información del usuario",
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              verificaTConexion();
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
-                  // SOCIAL + VERSIÓN
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     child: Row(
@@ -360,8 +570,13 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
                       ],
                     ),
                   ),
-                  Text('v$ver ${AppConfig.ambiente}',
-                      style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(
+                    'v$ver ${AppConfig.ambiente}',
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 12,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
               ),
@@ -371,17 +586,81 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
       ),
     );
   }
-
-  Widget _drawerItem(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.white),
-      title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
-      onTap: onTap,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      hoverColor: Colors.white24,
+  Widget _drawerItem({
+    required IconData icon,
+    required String label,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.72),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Colors.white.withOpacity(0.64),
+                size: 15,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-
   // =======================================================
   // 🔹 GPS / CONEXIÓN / URLS
   // =======================================================
@@ -438,6 +717,34 @@ class _WorkAreaMenuPageWidgetState extends State<WorkAreaMenuPageWidget> {
           shape: BoxShape.circle,
         ),
         child: Image.asset(assetPath),
+      ),
+    );
+  }
+  Widget _buildQuickStatusChip({
+    required IconData icon,
+    required String text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: Colors.white),
+          const SizedBox(width: 5),
+          Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }

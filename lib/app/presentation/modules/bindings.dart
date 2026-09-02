@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 
+import '../../core/services/google_auth_service.dart';
 import 'controllers.dart';
 
 part 'splash/splash_binding.dart';

@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:pne/app/data/models/models.dart';
 import 'package:pne/app/domain/entities/evento_entity.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/exceptions/exception_helper.dart';
 import '../../data/providers/providers_impl.dart';
 import '../../domain/repositories/domain_repositories.dart';

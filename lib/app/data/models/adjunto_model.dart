@@ -1,4 +1,5 @@
 part of 'models.dart';
+
 class AdjuntoModel {
   final File file;
   final String nombre;
@@ -18,3 +19,4 @@ class AdjuntoModel {
 
   bool get superaCincoMb => tamanioBytes > 5 * 1024 * 1024;
 }
+
